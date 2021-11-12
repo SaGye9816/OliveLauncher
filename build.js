@@ -18,8 +18,8 @@ function getCurrentPlatform(){
 builder.build({
     targets: (process.argv[2] != null && Platform[process.argv[2]] != null ? Platform[process.argv[2]] : getCurrentPlatform()).createTarget(),
     config: {
-        appId: 'sagyelauncher',
-        productName: 'SaGye Launcher',
+        appId: 'gamgullauncher',
+        productName: 'Gamgul Launcher',
         artifactName: '${productName}.${ext}',
         copyright: 'Copyright © 2020-2020 GamGul',
         directories: {
