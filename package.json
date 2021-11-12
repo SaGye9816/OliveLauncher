@@ -3,11 +3,11 @@
     "version": "1.0.0",
     "productName": "Gamgul Launcher",
     "description": "Modded Minecraft Launcher",
-    "author": "Gamgul (https://github.com/SaGye9816/GamgulLauncher/)",
+    "author": "SaGye (https://github.com/SaGye9816/GamgulLauncher/)",
     "license": "UNLICENSED",
-    "homepage": "https://github.com/SaGye-Online/SaGyeLauncher-Update",
+    "homepage": "",
     "bugs": {
-        "url": "https://github.com/SaGye-Online/SaGyeLauncher/issues"
+        "url": "https://github.com/SaGye9816/GamgulLauncherMods/issues"
     },
     "private": true,
     "main": "index.js",
