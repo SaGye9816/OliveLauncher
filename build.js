@@ -21,7 +21,7 @@ builder.build({
         appId: 'sagyelauncher',
         productName: 'SaGye Launcher',
         artifactName: '${productName}.${ext}',
-        copyright: 'Copyright © 2020-2020 SaGye Online',
+        copyright: 'Copyright © 2020-2020 GamGul',
         directories: {
             buildResources: 'build',
             output: 'dist'
@@ -47,8 +47,8 @@ builder.build({
         },
         linux: {
             target: 'AppImage',
-            maintainer: 'SaGye Online',
-            vendor: 'SaGye Online',
+            maintainer: 'Gamgul',
+            vendor: 'Gamgul',
             synopsis: 'Modded Minecraft Launcher',
             description: 'Custom launcher which allows users to join modded servers. All mods, configurations, and updates are handled automatically.',
             category: 'Game'
