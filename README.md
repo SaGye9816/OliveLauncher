@@ -4,7 +4,7 @@
 
 <em><h5 align="center">(formerly Electron Launcher)</h5></em>
 
-[![Build/release](https://github.com/SaGye9816/GamgulLauncher/actions/workflows/main.yml/badge.svg)](https://github.com/SaGye9816/GamgulLauncher/actions/workflows/main.yml)  height="28px" alt="stark"></p>
+[![Build/release](https://github.com/SaGye9816/GamgulLauncher/actions/workflows/main.yml/badge.svg)](https://github.com/SaGye9816/GamgulLauncher/actions/workflows/main.yml)
 
 # 사계 온라인 런처
 사계 온라인 공식 런처 깃허브에 오신것을 환영합니다.
