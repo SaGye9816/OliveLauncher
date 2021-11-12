@@ -1,51 +1,29 @@
-name: build & linting
+name: Build/release
 
-on:
-  workflow_dispatch:
+on: push
 
 jobs:
-  linting:
-    runs-on: ubuntu-latest
+  release:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - name: Check out Git repository
+        uses: actions/checkout@v1
+
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@v1
         with:
-          node-version: '14.x'
-      - run: 'npm install'
-      - run: 'npm run lint'
-  build-linux:
-    needs: linting
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+          node-version: 16
+
+      - name: Build/release Electron app
+        uses: samuelmeuli/action-electron-builder@v1
         with:
-          node-version: '14.x'
-      - run: 'npm install'
-      - run: 'npm run dist:linux'
-        env: 
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-  build-macos:
-    needs: linting
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '14.x'
-      - run: 'npm install'
-      - run: 'npm run dist:mac'
-        env: 
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-  build-windows:
-    needs: linting
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '14.x'
-      - run: 'npm install'
-      - run: 'npm run dist:win'
-        env: 
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          github_token: ${{ secrets.github_token }}
+
+          # If the commit is tagged with a version (e.g. "v1.0.0"),
+          # release the app after building
+          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
