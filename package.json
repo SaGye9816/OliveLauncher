@@ -1,9 +1,9 @@
 {
-    "name": "sagyelauncher",
-    "version": "2.5.0",
-    "productName": "SaGye Launcher",
+    "name": "gamgullauncher",
+    "version": "1.0.0",
+    "productName": "Gamgul Launcher",
     "description": "Modded Minecraft Launcher",
-    "author": "SaGye Online (https://github.com/SaGye-Online/)",
+    "author": "Gamgul (https://github.com/SaGye9816/GamgulLauncher/)",
     "license": "UNLICENSED",
     "homepage": "https://github.com/SaGye-Online/SaGyeLauncher-Update",
     "bugs": {
@@ -47,6 +47,6 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/SaGye-Online/SaGyeLauncher-Update.git"
+        "url": "git+https://github.com/SaGye9816/GamgulLauncherMods.git"
     }
 }
