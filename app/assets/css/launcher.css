@@ -3018,9 +3018,10 @@ input:checked+.toggleSwitchSlider:before {
 
 #landingContainer>#upper>#left {
     display: inline-flex;
-    width: 15%;
+    width: 50%;
     height: 100%;
     justify-content: flex-end;
+    margin-top: 5%;
 }
 
 #landingContainer>#upper>#content {
