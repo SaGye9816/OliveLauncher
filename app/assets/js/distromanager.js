@@ -567,7 +567,7 @@ exports.pullRemote = function(){
         return exports.pullLocal()
     }
     return new Promise((resolve, reject) => {
-        const distroURL = 'https://raw.githubusercontent.com/SaGye9816/GamgulLauncherMods/master/distribution.json'
+        const distroURL = 'https://raw.githubusercontent.com/SaGye9816/GamgulLauncherMods/master/deploy/distribution.json'
         const opts = {
             url: distroURL,
             timeout: 2500
