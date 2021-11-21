@@ -112,7 +112,7 @@ document.getElementById('launch_button').addEventListener('click', function(e) {
                         if (selectedServ.getServerConnect() == false) {
                             setLaunchDetails('서버 접속가능 여부 체크 중')
                             setLaunchPercentage(0, 100)
-                            showLaunchFailure('서버 접속불가', '사계 온라인에 접속할수 없습니다.<br><br>디스코드를 확인해주세요.')
+                            showLaunchFailure('서버 접속불가', '감귤농장ㄴ에 접속할 수 없습니다.<br><br>디스코드를 확인해주세요.')
                             toggleLaunchArea(false)
                         } else {
                             setLaunchDetails('준비 중...')
@@ -549,7 +549,7 @@ function dlAsync(login = true) {
 
             if (login && allGood) {
                 const authUser = ConfigManager.getSelectedAccount()
-                loggerLaunchSuite.log(`선택됀 계정 (${authUser.displayName})을 ProcessBuilder으로 전송합니다.`)
+                loggerLaunchSuite.log(`선택된 계정 (${authUser.displayName})을 ProcessBuilder으로 전송합니다.`)
                 let pb = new ProcessBuilder(serv, versionData, forgeData, authUser, remote.app.getVersion())
                 setLaunchDetails('게임 실행 중...')
 
@@ -584,10 +584,10 @@ function dlAsync(login = true) {
                 const gameStateChange = function(data) {
                     data = data.trim()
                     if (SERVER_JOINED_REGEX.test(data)) {
-                        DiscordWrapper.updateDetails('사계 온라인 플레이 중')
+                        DiscordWrapper.updateDetails('감귤농장 플레이 중')
                         DiscordLogger.log('상태 변경 완료')
                     } else if (GAME_JOINED_REGEX.test(data)) {
-                        DiscordWrapper.updateDetails('사계 온라인 로딩 중')
+                        DiscordWrapper.updateDetails('감귤농장 로딩 중')
                         DiscordLogger.log('상태 변경 완료')
                     }
                 }

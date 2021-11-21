@@ -36,7 +36,7 @@
                 }
             },
             "login": "Login",
-            "loggingIn": "로그인중",
+            "loggingIn": "로그인 중",
             "success": "success",
             "tryAgain": "tryAgain"
         },
