@@ -112,7 +112,7 @@ document.getElementById('launch_button').addEventListener('click', function(e) {
                         if (selectedServ.getServerConnect() == false) {
                             setLaunchDetails('서버 접속가능 여부 체크 중')
                             setLaunchPercentage(0, 100)
-                            showLaunchFailure('서버 접속불가', '감귤농장ㄴ에 접속할 수 없습니다.<br><br>디스코드를 확인해주세요.')
+                            showLaunchFailure('서버 접속불가', '감귤농장에 접속할 수 없습니다.<br><br>디스코드를 확인해주세요.')
                             toggleLaunchArea(false)
                         } else {
                             setLaunchDetails('준비 중...')
@@ -132,7 +132,7 @@ document.getElementById('launch_button').addEventListener('click', function(e) {
                 }
             } catch (e) {
                 loggerLanding.error(e + ' 오류발생')
-                showLaunchFailure('알수없는 오류', '오류가 발생했습니다. <br><br>'+e)
+                showLaunchFailure('알 수 없는 오류', '오류가 발생했습니다. <br><br>'+e)
                 toggleLaunchArea(false)
             }
         }
@@ -510,7 +510,7 @@ function dlAsync(login = true) {
         } else if (m.context === 'error') {
             switch (m.data) {
                 case 'download':
-                    loggerLaunchSuite.error('다운로드중 오류:', m.error)
+                    loggerLaunchSuite.error('다운로드 중 오류:', m.error)
 
                     if (m.error.code === 'ENOENT') {
                         showLaunchFailure(
