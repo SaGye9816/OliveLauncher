@@ -145,29 +145,6 @@ document.getElementById('settingsMediaButton').onclick = (e) => {
     switchView(getCurrentView(), VIEWS.settings)
 }
 
-// Bind avatar overlay button.
-document.getElementById('avatarOverlay').onclick = (e) => {
-    prepareSettings()
-    switchView(getCurrentView(), VIEWS.settings, 500, 500, () => {
-        settingsNavItemListener(document.getElementById('settingsNavAccount'), false)
-    })
-}
-
-// Bind selected account
-function updateSelectedAccount(authUser){
-    let username = 'No Account Selected'
-    if(authUser != null){
-        if(authUser.displayName != null){
-            username = authUser.displayName
-        }
-        if(authUser.uuid != null){
-            document.getElementById('avatarContainer').style.backgroundImage = `url('https://mc-heads.net/avatar/${authUser.uuid}')`
-        }
-    }
-    user_text.innerHTML = username
-}
-updateSelectedAccount(ConfigManager.getSelectedAccount())
-
 // Bind selected server
 function updateSelectedServer(serv) {
     if (getCurrentView() === VIEWS.settings) {
