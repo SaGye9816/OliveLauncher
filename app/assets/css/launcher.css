@@ -7,24 +7,10 @@
  *                                                                             *
  ******************************************************************************/
 
-@font-face {
-    font-family: 'NanumGothic';
-    src: url('../fonts/NanumGothic.ttf');
-}
 
 @font-face {
-    font-family: 'NanumGothicLight';
-    src: url('../fonts/NanumGothicLight.ttf');
-}
-
-@font-face {
-    font-family: 'NanumGothicBold';
-    src: url('../fonts/NanumGothicBold.ttf');
-}
-
-@font-face {
-    font-family: 'NotoSansKRBlack';
-    src: url('../fonts/NotoSansKRBlack.otf');
+    font-family: 'esamanruLight';
+    src: url('../fonts/esamanruLight.ttf');
 }
 
 /*******************************************************************************
@@ -47,7 +33,7 @@ p {
 
 /* Set default font and color. */
 body, button {
-    font-family: 'NanumGothic';
+    font-family: 'esamanruLight';
     color: white;
 }
 
@@ -115,7 +101,7 @@ body, button {
 }
 #frameTitleText {
     font-size: 14px;
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
     letter-spacing: 0.5px;
 }
 
@@ -288,7 +274,7 @@ body, button {
 }
 
 #welcomeHeader {
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
     text-align: center;
     color: white;
     margin-bottom: 25px;
@@ -316,7 +302,7 @@ body, button {
     border-color: transparent;
     background-color: transparent;
     cursor: pointer;
-    font-family: 'NanumGothicBold';
+    font-family: 'esamanruLight';
     font-size: 12px;
     font-weight: bold;
     margin-bottom: 3px;
@@ -512,7 +498,7 @@ body, button {
 
 /* Header on login view. */
 #loginSubheader {
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
     margin-bottom: 25px;
     font-size: 12px;
     letter-spacing: 1px;
@@ -537,7 +523,7 @@ body, button {
 
 /* Span which displays errors related to login field content. */
 .loginErrorSpan {
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
     font-weight: bold;
     font-size: 8px;
     color: #ff1b0c;
@@ -573,7 +559,7 @@ body, button {
 
 /* Login text input styles. */
 .loginField {
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
     background: none;
     border-width: 1.5px 0px 0px 0px;
     border-style: solid;
@@ -1068,7 +1054,7 @@ body, button {
 }
 .settingsTabHeaderText {
     font-size: 20px;
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
 }
 .settingsTabHeaderDesc {
     font-size: 12px;
@@ -1086,7 +1072,7 @@ body, button {
     background: rgba(0, 0, 0, 0.25);
     border-radius: 3px;
     border: 1px solid rgba(126, 126, 126, 0.57);
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
     transition: 0.25s ease;
 }
 #settingsContainer input[type=number]:focus,
@@ -1115,7 +1101,7 @@ body, button {
 }
 .settingsFieldTitle {
     font-size: 14px;
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
     color: rgba(255, 255, 255, 0.95);
 }
 .settingsFieldDesc {
@@ -1278,7 +1264,7 @@ input:checked + .toggleSwitchSlider:before {
     width: 89%;
 }
 .settingsFileSelDesc strong {
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
 }
 
 /* * *
@@ -1366,7 +1352,7 @@ input:checked + .toggleSwitchSlider:before {
     font-size: 12px;
     color: grey;
     font-weight: bold;
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
 }
 .settingsAuthAccountDetailValue {
     font-size: 14px;
@@ -1388,7 +1374,7 @@ input:checked + .toggleSwitchSlider:before {
     border: none;
     white-space: nowrap;
     background: none;
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
     outline: none;
     transition: 0.25s ease;
 }
@@ -1413,7 +1399,7 @@ input:checked + .toggleSwitchSlider:before {
     background: none;
     font-size: 12px;
     border-radius: 3px;
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
     transition: 0.25s ease;
     cursor: pointer;
     outline: none;
@@ -1497,7 +1483,7 @@ input:checked + .toggleSwitchSlider:before {
     background: none;
     font-size: 12px;
     border-radius: 3px;
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
     transition: 0.25s ease;
     cursor: pointer;
     outline: none;
@@ -2021,7 +2007,7 @@ input:checked + .toggleSwitchSlider:before {
 /* Release type text. */
 #settingsAboutCurrentVersionTitle {
     font-size: 12px;
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
     color: #23aa23;
     font-weight: bold;
 }
@@ -2220,7 +2206,7 @@ input:checked + .toggleSwitchSlider:before {
 /* Release type text. */
 #settingsUpdateVersionTitle {
     font-size: 12px;
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
     color: #23aa23;
     font-weight: bold;
 }
@@ -2280,7 +2266,7 @@ input:checked + .toggleSwitchSlider:before {
 }
 
 #font {
-	font-family: 'NanumGothicBold';
+	font-family: 'esamanruLight';
 	font-size: 10px;
 }
 
@@ -2330,13 +2316,14 @@ input:checked + .toggleSwitchSlider:before {
     display: inline-flex;
     line-height: 24px;
     left: 50px;
+	font-weight: 900;
 }
 #landingContainer > #lower > #center {
     position: relative;
     transition: top 2s ease;
     top: 0px;
     height: 100%;
-    width: 34%;
+    width: 28%;
     display: inline-flex;
     justify-content: center;
 }
@@ -2424,7 +2411,7 @@ input:checked + .toggleSwitchSlider:before {
 #newsArticleTitle {
     font-size: 18px;
     font-weight: bold;
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
     color: white;
     text-decoration: none;
     transition: 0.25s ease;
@@ -2741,7 +2728,7 @@ input:checked + .toggleSwitchSlider:before {
     z-index: 1;
     top: 115%;
     left: -17.5px;
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
     font-size: 12px;
     transition: visibility 0s linear 0.25s, opacity 0.25s ease;
 }
@@ -2844,7 +2831,7 @@ input:checked + .toggleSwitchSlider:before {
 
 /* User profile name text. */
 #user_text {
-    font-size: 12px;
+    font-size: 16px;
     min-width: 135px;
     font-weight: 900;
     letter-spacing: 1px;
@@ -3020,7 +3007,7 @@ input:checked + .toggleSwitchSlider:before {
 
 /* Divider used on the bottom of the landing view. */
 .bot_divider {
-    height: 25px;
+    height: 30px;
     width: 2px;
     background: rgba(107, 105, 105, 0.7);
     margin-left: 20px;
@@ -3073,7 +3060,7 @@ input:checked + .toggleSwitchSlider:before {
     border-radius: 4px;
     padding: 5px 10px;
     z-index: 1;
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
     font-size: 12px;
     transition: visibility 0s linear 0.25s, opacity 0.25s ease;
     bottom: calc(100% + 15px);
@@ -3083,7 +3070,7 @@ input:checked + .toggleSwitchSlider:before {
     cursor: default;
 }
 #mojangStatusTooltip:after {
-    content: " ";
+    content: "";
     position: absolute;
     left: 50%;
     top: 100%;
@@ -3216,7 +3203,7 @@ input:checked + .toggleSwitchSlider:before {
 /* * *
 * Landing View (Bottom Styles) | Right Content
 * * */
-
+	
 /* Main launch content container. */
 #landingContainer > #lower > #right #launch_content {
     position: relative;
@@ -3230,9 +3217,10 @@ input:checked + .toggleSwitchSlider:before {
     border: none;
     cursor: pointer;
     font-weight: 900;
+	font-family: 'esamanruLight';
     letter-spacing: 2px;
     text-shadow: 0px 0px 0px #bebcbb;
-    font-size: 20px;
+    font-size: 18px;
     padding: 0px;
     transition: 0.25s ease;
     outline: none;
@@ -3388,7 +3376,7 @@ input:checked + .toggleSwitchSlider:before {
 
 /* Overlay title styles. */
 #overlayTitle {
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
     font-size: 20px;
     font-weight: bold;
     letter-spacing: 1px;
@@ -3414,7 +3402,7 @@ input:checked + .toggleSwitchSlider:before {
     background: none;
     border: 1px solid #ffffff;
     color: white;
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
     font-weight: bold;
     border-radius: 2px;
     padding: 0px 8.1px;
@@ -3466,7 +3454,7 @@ input:checked + .toggleSwitchSlider:before {
 /* Server selection header. */
 #serverSelectHeader,
 #accountSelectHeader {
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
     font-size: 20px;
     font-weight: bold;
     color: #fff;
@@ -3688,7 +3676,7 @@ input:checked + .toggleSwitchSlider:before {
     background: none;
     border: 1px solid #ffffff;
     color: white;
-    font-family: 'NotoSansKRBlack';
+    font-family: 'esamanruLight';
     font-weight: bold;
     border-radius: 2px;
     padding: 0px 8.1px;
