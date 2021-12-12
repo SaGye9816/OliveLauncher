@@ -17,7 +17,6 @@ const checkmarkContainer    = document.getElementById('checkmarkContainer')
 const loginRememberOption   = document.getElementById('loginRememberOption')
 const loginButton           = document.getElementById('loginButton')
 const loginForm             = document.getElementById('loginForm')
-const loginMSButton         = document.getElementById('loginMSButton')
 
 // Control variables.
 let lu = false, lp = false
@@ -298,72 +297,4 @@ loginButton.addEventListener('click', () => {
         loggerLogin.log('Error while logging in.', err)
     })
 
-})
-
-loginMSButton.addEventListener('click', (event) => {
-    ipcRenderer.send('openMSALoginWindow', 'open')
-}) 
-
-ipcRenderer.on('MSALoginWindowReply', (event, ...args) => {
-    if (args[0] === 'error') {
-        setOverlayContent('이미 로그인 창이 열려있습니다.', '열려있는 로그인 창을 닫고 다시 시도해 주세요.', '확인')
-        setOverlayHandler(() => {
-            toggleOverlay(false)
-        })
-        toggleOverlay(true)
-        return
-    }
-    
-    const queryMap = args[0]
-    if(queryMap.has('error')) {
-        let error = queryMap.get('error')
-        let errorDesc = queryMap.get('error_description')
-        setOverlayContent(error, errorDesc, '확인')
-        setOverlayHandler(() => {
-            toggleOverlay(false)
-        })
-        toggleOverlay(true)
-        return
-    }
-
-    // Disable form.
-    formDisabled(true)
-
-    // Show loading stuff.
-    loginLoading(true)
-
-    const authCode = queryMap.get('code')
-    AuthManager.addMSAccount(authCode).then(account => {
-        updateSelectedAccount(account)
-        loginButton.innerHTML = loginButton.innerHTML.replace(Lang.queryJS('login.loggingIn'), Lang.queryJS('login.success'))
-        $('.circle-loader').toggleClass('load-complete')
-        $('.checkmark').toggle()
-        setTimeout(() => {
-            switchView(VIEWS.login, loginViewOnSuccess, 500, 500, () => {
-                // Temporary workaround
-                if(loginViewOnSuccess === VIEWS.settings){
-                    prepareSettings()
-                }
-                loginViewOnSuccess = VIEWS.landing // Reset this for good measure.
-                loginCancelEnabled(false) // Reset this for good measure.
-                loginViewCancelHandler = null // Reset this for good measure.
-                loginUsername.value = ''
-                loginPassword.value = ''
-                $('.circle-loader').toggleClass('load-complete')
-                $('.checkmark').toggle()
-                loginLoading(false)
-                loginButton.innerHTML = loginButton.innerHTML.replace(Lang.queryJS('login.success'), Lang.queryJS('login.login'))
-                formDisabled(false)
-            })
-        }, 1000)
-    }).catch(error => {
-        loginLoading(false)
-        setOverlayContent('에러가 발생했습니다.', '런처 개발자에게 제보해주세요.', Lang.queryJS('login.tryAgain'))
-        setOverlayHandler(() => {
-            formDisabled(false)
-            toggleOverlay(false)
-        })
-        toggleOverlay(true)
-        loggerLogin.error(error)
-    })
 })

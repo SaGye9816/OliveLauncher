@@ -1,5 +1,5 @@
 const net = require('net')
-//건들지 마세요
+
 /**
  * Retrieves the status of a minecraft server.
  * 

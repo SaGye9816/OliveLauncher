@@ -1,7 +1,6 @@
 // Requirements
 const os     = require('os')
 const semver = require('semver')
-const { PassThrough } = require('stream')
 
 const { JavaGuard } = require('./assets/js/assetguard')
 const DropinModUtil  = require('./assets/js/dropinmodutil')
@@ -86,7 +85,7 @@ bindFileSelectors()
 /**
   * Bind value validators to the settings UI elements. These will
   * validate against the criteria defined in the ConfigManager (if
-  * and). If the value is invalid, the UI will reflect this and saving
+  * any). If the value is invalid, the UI will reflect this and saving
   * will be disabled until the value is corrected. This is an automated
   * process. More complex UI may need to be bound separately.
   */
@@ -136,8 +135,6 @@ function initSettingsValues(){
                         populateJavaExecDetails(v.value)
                         v.value = gFn()
                     } else if (cVal === 'DataDirectory'){
-                        v.value = gFn()
-                    } else if (cVal === 'ServerCode'){
                         v.value = gFn()
                     } else if(cVal === 'JVMOptions'){
                         v.value = gFn().join(' ')
@@ -325,38 +322,6 @@ document.getElementById('settingsAddAccount').onclick = (e) => {
         loginCancelEnabled(true)
     })
 }
-/**
- * Binds the functionality within the server codes section of the launcher settings
- */
-function bindServerCodeButtons(){
-    // Sets up the onclick listeners for the button to add codes
-    document.getElementById('settingsAddServerCode').onclick = () => {
-        for(let ele of document.getElementsByClassName('settingsInputServerCodeVal')){
-            const code = ele.value
-            ele.value = ''
-            if(!ConfigManager.getServerCodes().includes(code) && code){
-                ConfigManager.getServerCodes().push(code)
-                ConfigManager.save()
-                prepareLauncherTab()
-            }
-        }
-    }
-
-    // Sets up the onclick listeners for each remove code buttons
-    const sEls = document.querySelectorAll('[remcode]')
-    Array.from(sEls).map((v, index, arr) => {
-        v.onclick = () => {
-            if(v.hasAttribute('remcode')){
-                const code = v.getAttribute('remcode')
-                if(ConfigManager.getServerCodes().includes(code)){
-                    ConfigManager.getServerCodes().splice(ConfigManager.getServerCodes().indexOf(code), 1)
-                    ConfigManager.save()
-                    prepareLauncherTab()
-                }
-            }
-        }
-    })
-}
 
 /**
  * Bind functionality for the account selection buttons. If another account
@@ -372,11 +337,11 @@ function bindAuthAccountSelect(){
             for(let i=0; i<selectBtns.length; i++){
                 if(selectBtns[i].hasAttribute('selected')){
                     selectBtns[i].removeAttribute('selected')
-                    selectBtns[i].innerHTML = '계정 선택'
+                    selectBtns[i].innerHTML = 'Select Account'
                 }
             }
             val.setAttribute('selected', '')
-            val.innerHTML = '현재 계정 &#10004;'
+            val.innerHTML = 'Selected Account &#10004;'
             setSelectedAccount(val.closest('.settingsAuthAccount').getAttribute('uuid'))
         }
     })
@@ -394,10 +359,10 @@ function bindAuthAccountLogOut(){
             if(Object.keys(ConfigManager.getAuthAccounts()).length === 1){
                 isLastAccount = true
                 setOverlayContent(
-                    '경고<br>로그인된 마지막 계정.',
-                    '런처를 사용하려면 하나 이상의 계정에 로그인해야 합니다. 로그아웃시 다시 로그인해야합니다.<br><br>로그아웃하시겠습니까?',
-                    '로그아웃',
-                    '취소'
+                    'Warning<br>This is Your Last Account',
+                    'In order to use the launcher you must be logged into at least one account. You will need to login again after.<br><br>Are you sure you want to log out?',
+                    'I\'m Sure',
+                    'Cancel'
                 )
                 setOverlayHandler(() => {
                     processLogOut(val, isLastAccount)
@@ -450,12 +415,12 @@ function refreshAuthAccountSelected(uuid){
         const selBtn = val.getElementsByClassName('settingsAuthAccountSelect')[0]
         if(uuid === val.getAttribute('uuid')){
             selBtn.setAttribute('selected', '')
-            selBtn.innerHTML = '현재 계정 &#10004;'
+            selBtn.innerHTML = 'Selected Account &#10004;'
         } else {
             if(selBtn.hasAttribute('selected')){
                 selBtn.removeAttribute('selected')
             }
-            selBtn.innerHTML = '계정 선택됨'
+            selBtn.innerHTML = 'Select Account'
         }
     })
 }
@@ -479,12 +444,12 @@ function populateAuthAccounts(){
         const acc = authAccounts[val]
         authAccountStr += `<div class="settingsAuthAccount" uuid="${acc.uuid}">
             <div class="settingsAuthAccountLeft">
-                <img class="settingsAuthAccountImage" alt="${acc.displayName}" src="https://crafatar.com/renders/body/${acc.uuid}?scale=3&default=MHF_Steve&overlay">
+                <img class="settingsAuthAccountImage" alt="${acc.displayName}" src="https://mc-heads.net/body/${acc.uuid}/60">
             </div>
             <div class="settingsAuthAccountRight">
                 <div class="settingsAuthAccountDetails">
                     <div class="settingsAuthAccountDetailPane">
-                        <div class="settingsAuthAccountDetailTitle">닉네임</div>
+                        <div class="settingsAuthAccountDetailTitle">Username</div>
                         <div class="settingsAuthAccountDetailValue">${acc.displayName}</div>
                     </div>
                     <div class="settingsAuthAccountDetailPane">
@@ -493,9 +458,9 @@ function populateAuthAccounts(){
                     </div>
                 </div>
                 <div class="settingsAuthAccountActions">
-                    <button class="settingsAuthAccountSelect" ${selectedUUID === acc.uuid ? 'selected>현재 계정 &#10004;' : '>계정 선택'}</button>
+                    <button class="settingsAuthAccountSelect" ${selectedUUID === acc.uuid ? 'selected>Selected Account &#10004;' : '>Select Account'}</button>
                     <div class="settingsAuthAccountWrapper">
-                        <button class="settingsAuthAccountLogOut">로그아웃</button>
+                        <button class="settingsAuthAccountLogOut">Log Out</button>
                     </div>
                 </div>
             </div>
@@ -512,14 +477,6 @@ function prepareAccountsTab() {
     populateAuthAccounts()
     bindAuthAccountSelect()
     bindAuthAccountLogOut()
-}
-
-/**
- * Prepare the accounts tab for display.
- */
-function prepareLauncherTab() {
-    resolveServerCodesForUI()
-    bindServerCodeButtons()
 }
 
 /**
@@ -585,6 +542,7 @@ function parseModulesForUI(mdls, submodules, servConf){
                             <div class="settingsModStatus"></div>
                             <div class="settingsModDetails">
                                 <span class="settingsModName">${mdl.getName()}</span>
+                                <span class="settingsModVersion">v${mdl.getVersion()}</span>
                             </div>
                         </div>
                         <label class="toggleSwitch" reqmod>
@@ -608,6 +566,7 @@ function parseModulesForUI(mdls, submodules, servConf){
                             <div class="settingsModStatus"></div>
                             <div class="settingsModDetails">
                                 <span class="settingsModName">${mdl.getName()}</span>
+                                <span class="settingsModVersion">v${mdl.getVersion()}</span>
                             </div>
                         </div>
                         <label class="toggleSwitch">
@@ -707,7 +666,7 @@ function resolveDropinModsForUI(){
                             <div class="settingsModDetails">
                                 <span class="settingsModName">${dropin.name}</span>
                                 <div class="settingsDropinRemoveWrapper">
-                                    <button class="settingsDropinRemoveButton" remmod="${dropin.fullName}">제거</button>
+                                    <button class="settingsDropinRemoveButton" remmod="${dropin.fullName}">Remove</button>
                                 </div>
                             </div>
                         </div>
@@ -722,77 +681,22 @@ function resolveDropinModsForUI(){
     document.getElementById('settingsDropinModsContent').innerHTML = dropinMods
 }
 
-function resolveServerCodesForUI(){
-    /* Server Codes */
-    let servCodes = ''
-    for(let servCode of ConfigManager.getServerCodes()){
-        try {
-            const servs = DistroManager.getDistribution().getServersFromCode(servCode)
-            const valid = servs && servs.length
-            servCodes +=
-                    `
-                        <div id="${servCode}" class="settingsServerCode" ${valid ? 'valid' : ''}>
-                            <div class="settingsServerCodeContent">
-                                <div class="settingsServerCodeMainWrapper">
-                                    <div class="settingsServerCodeStatus"></div>
-                                    <div class="settingsServerCodeDetails">
-                                        <span class="settingsServerCodeName">${servCode}</span>
-                                        <div class="settingsServerCodeServerNamesContent" code="${servCode}">                      
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="settingsServerCodeRemoveWrapper">
-                                    <button class="settingsServerCodeRemoveButton" id="settingsRemoveServerCode" remcode="${servCode}">제거</button>
-                                </div>
-                            </div>
-                        </div>
-                    `
-        } catch (e) {
-            //null
-        }
-    }
-    document.getElementById('settingsServerCodesListContent').innerHTML = servCodes
-
-    /* Server Names List */
-    for(let ele of document.getElementsByClassName('settingsServerCodeServerNamesContent')){
-        servNames = ''
-        const code = ele.getAttribute('code')
-        const servs = DistroManager.getDistribution().getServersFromCode(code)
-        const valid = servs && servs.length
-        if(valid){
-            for(let serv of servs){
-                servNames +=
-                    `
-                    <span class="settingsServerCodeServerName"></span> 
-                    `
-            }
-        } else {
-            servNames =
-                `
-                    <span class="settingsServerCodeServerName"></span> 
-                `
-        }
-
-        ele.innerHTML = servNames
-    }
-}
-
 /**
  * Bind the remove button for each loaded drop-in mod.
  */
 function bindDropinModsRemoveButton(){
     const sEls = settingsModsContainer.querySelectorAll('[remmod]')
     Array.from(sEls).map((v, index, arr) => {
-        v.onclick = () => {
+        v.onclick = async () => {
             const fullName = v.getAttribute('remmod')
-            const res = DropinModUtil.deleteDropinMod(CACHE_SETTINGS_MODS_DIR, fullName)
+            const res = await DropinModUtil.deleteDropinMod(CACHE_SETTINGS_MODS_DIR, fullName)
             if(res){
                 document.getElementById(fullName).remove()
             } else {
                 setOverlayContent(
-                    `제거 실패<br>모드 이름 : ${fullName}`,
-                    '파일이 사용 중이 아닌지 확인하고 다시 시도해주세요.',
-                    '확인'
+                    `Failed to Delete<br>Drop-in Mod ${fullName}`,
+                    'Make sure the file is not in use and try again.',
+                    'Okay'
                 )
                 setOverlayHandler(null)
                 toggleOverlay(true)
@@ -807,6 +711,10 @@ function bindDropinModsRemoveButton(){
  */
 function bindDropinModFileSystemButton(){
     const fsBtn = document.getElementById('settingsDropinFileSystemButton')
+    fsBtn.onclick = () => {
+        DropinModUtil.validateDir(CACHE_SETTINGS_MODS_DIR)
+        shell.openPath(CACHE_SETTINGS_MODS_DIR)
+    }
     fsBtn.ondragenter = e => {
         e.dataTransfer.dropEffect = 'move'
         fsBtn.setAttribute('drag', '')
@@ -841,9 +749,9 @@ function saveDropinModConfiguration(){
                 DropinModUtil.toggleDropinMod(CACHE_SETTINGS_MODS_DIR, dropin.fullName, dropinUIEnabled).catch(err => {
                     if(!isOverlayVisible()){
                         setOverlayContent(
-                            '오류 발생',
+                            'Failed to Toggle<br>One or More Drop-in Mods',
                             err.message,
-                            '확인'
+                            'Okay'
                         )
                         setOverlayHandler(null)
                         toggleOverlay(true)
@@ -965,8 +873,10 @@ function loadSelectedServerOnModsTab(){
         <img class="serverListingImg" src="${serv.getIcon()}"/>
         <div class="serverListingDetails">
             <span class="serverListingName">${serv.getName()}</span>
-            <span class="serverListingDescription">사계 온라인에 오신걸 환영합니다.</span>
+            <span class="serverListingDescription">${serv.getDescription()}</span>
             <div class="serverListingInfo">
+                <div class="serverListingVersion">${serv.getMinecraftVersion()}</div>
+                <div class="serverListingRevision">${serv.getVersion()}</div>
                 ${serv.isMainServer() ? `<div class="serverListingStarWrapper">
                     <svg id="Layer_1" viewBox="0 0 107.45 104.74" width="20px" height="20px">
                         <defs>
@@ -975,7 +885,7 @@ function loadSelectedServerOnModsTab(){
                         <path class="cls-1" d="M100.93,65.54C89,62,68.18,55.65,63.54,52.13c2.7-5.23,18.8-19.2,28-27.55C81.36,31.74,63.74,43.87,58.09,45.3c-2.41-5.37-3.61-26.52-4.37-39-.77,12.46-2,33.64-4.36,39-5.7-1.46-23.3-13.57-33.49-20.72,9.26,8.37,25.39,22.36,28,27.55C39.21,55.68,18.47,62,6.52,65.55c12.32-2,33.63-6.06,39.34-4.9-.16,5.87-8.41,26.16-13.11,37.69,6.1-10.89,16.52-30.16,21-33.9,4.5,3.79,14.93,23.09,21,34C70,86.84,61.73,66.48,61.59,60.65,67.36,59.49,88.64,63.52,100.93,65.54Z"/>
                         <circle class="cls-2" cx="53.73" cy="53.9" r="38"/>
                     </svg>
-                    <span class="serverListingStarTooltip">메인 서버</span>
+                    <span class="serverListingStarTooltip">Main Server</span>
                 </div>` : ''}
             </div>
         </div>
@@ -1225,25 +1135,20 @@ function populateMemoryStatus(){
  * 
  * @param {string} execPath The executable path to populate against.
  */
-
 function populateJavaExecDetails(execPath){
-    try {
-        const jg = new JavaGuard(DistroManager.getDistribution().getServer(ConfigManager.getSelectedServer()).getMinecraftVersion())
-        jg._validateJavaBinary(execPath).then(v => {
-            if(v.valid){
-                const vendor = v.vendor != null ? ` (${v.vendor})` : ''
-                if(v.version.major < 9) {
-                    settingsJavaExecDetails.innerHTML = `현재 자바: ${v.version.major} 업데이트 ${v.version.update} (x${v.arch})${vendor}`
-                } else {
-                    settingsJavaExecDetails.innerHTML = `현재 자바: ${v.version.major}.${v.version.minor}.${v.version.revision} (x${v.arch})${vendor}`
-                }
+    const jg = new JavaGuard(DistroManager.getDistribution().getServer(ConfigManager.getSelectedServer()).getMinecraftVersion())
+    jg._validateJavaBinary(execPath).then(v => {
+        if(v.valid){
+            const vendor = v.vendor != null ? ` (${v.vendor})` : ''
+            if(v.version.major < 9) {
+                settingsJavaExecDetails.innerHTML = `Selected: Java ${v.version.major} Update ${v.version.update} (x${v.arch})${vendor}`
             } else {
-                settingsJavaExecDetails.innerHTML = '자바 경로 설정'
+                settingsJavaExecDetails.innerHTML = `Selected: Java ${v.version.major}.${v.version.minor}.${v.version.revision} (x${v.arch})${vendor}`
             }
-        }) 
-    } catch(e){
-        return null
-    } 
+        } else {
+            settingsJavaExecDetails.innerHTML = 'Invalid Selection'
+        }
+    })
 }
 
 /**
@@ -1261,6 +1166,13 @@ function prepareJavaTab(){
 const settingsTabAbout             = document.getElementById('settingsTabAbout')
 const settingsAboutChangelogTitle  = settingsTabAbout.getElementsByClassName('settingsChangelogTitle')[0]
 const settingsAboutChangelogText   = settingsTabAbout.getElementsByClassName('settingsChangelogText')[0]
+const settingsAboutChangelogButton = settingsTabAbout.getElementsByClassName('settingsChangelogButton')[0]
+
+// Bind the devtools toggle button.
+document.getElementById('settingsAboutDevToolsButton').onclick = (e) => {
+    let window = remote.getCurrentWindow()
+    window.toggleDevTools()
+}
 
 /**
  * Return whether or not the provided version is a prerelease.
@@ -1285,11 +1197,11 @@ function isPrerelease(version){
 function populateVersionInformation(version, valueElement, titleElement, checkElement){
     valueElement.innerHTML = version
     if(isPrerelease(version)){
-        titleElement.innerHTML = '베타 버전'
+        titleElement.innerHTML = 'Pre-release'
         titleElement.style.color = '#ff886d'
         checkElement.style.background = '#ff886d'
     } else {
-        titleElement.innerHTML = '정식 버전'
+        titleElement.innerHTML = 'Stable Release'
         titleElement.style.color = null
         checkElement.style.background = null
     }
@@ -1308,7 +1220,7 @@ function populateAboutVersionInformation(){
  */
 function populateReleaseNotes(){
     $.ajax({
-        url: 'https://github.com/SaGye-Online/SaGyeLauncher-Update/releases.atom',
+        url: 'https://github.com/dscalzi/HeliosLauncher/releases.atom',
         success: (data) => {
             const version = 'v' + remote.app.getVersion()
             const entries = $(data).find('entry')
@@ -1321,14 +1233,14 @@ function populateReleaseNotes(){
                 if(id === version){
                     settingsAboutChangelogTitle.innerHTML = entry.find('title').text()
                     settingsAboutChangelogText.innerHTML = entry.find('content').text()
+                    settingsAboutChangelogButton.href = entry.find('link').attr('href')
                 }
             }
 
         },
         timeout: 2500
     }).catch(err => {
-        console.log('패치노트 로드 실패 인터넷을 확인해주세요')
-        settingsAboutChangelogText.innerHTML = '패치노트 로드 실패'
+        settingsAboutChangelogText.innerHTML = 'Failed to load release notes.'
     })
 }
 
@@ -1376,27 +1288,27 @@ function settingsUpdateButtonStatus(text, disabled = false, handler = null){
  */
 function populateSettingsUpdateInformation(data){
     if(data != null){
-        settingsUpdateTitle.innerHTML = `새로운 ${isPrerelease(data.version) ? '베타 릴리즈' : '최신 릴리즈'} 사용가능`
+        settingsUpdateTitle.innerHTML = `New ${isPrerelease(data.version) ? 'Pre-release' : 'Release'} Available`
         settingsUpdateChangelogCont.style.display = null
         settingsUpdateChangelogTitle.innerHTML = data.releaseName
         settingsUpdateChangelogText.innerHTML = data.releaseNotes
         populateVersionInformation(data.version, settingsUpdateVersionValue, settingsUpdateVersionTitle, settingsUpdateVersionCheck)
         
         if(process.platform === 'darwin'){
-            settingsUpdateButtonStatus('서버에서 다운로드 <span style="font-size: 10px;color: gray;text-shadow: none !important;">런처를 닫고 dmg파일을 실행해주세요.</span>', false, () => {
+            settingsUpdateButtonStatus('Download from GitHub<span style="font-size: 10px;color: gray;text-shadow: none !important;">Close the launcher and run the dmg to update.</span>', false, () => {
                 shell.openExternal(data.darwindownload)
             })
         } else {
-            settingsUpdateButtonStatus('서버에서 다운로드 중...', true)
+            settingsUpdateButtonStatus('Downloading..', true)
         }
     } else {
-        settingsUpdateTitle.innerHTML = '최신 버전으로 실행하셨습니다.'
+        settingsUpdateTitle.innerHTML = 'You Are Running the Latest Version'
         settingsUpdateChangelogCont.style.display = 'none'
         populateVersionInformation(remote.app.getVersion(), settingsUpdateVersionValue, settingsUpdateVersionTitle, settingsUpdateVersionCheck)
-        settingsUpdateButtonStatus('업데이트 확인', false, () => {
+        settingsUpdateButtonStatus('Check for Updates', false, () => {
             if(!isDev){
                 ipcRenderer.send('autoUpdateAction', 'checkForUpdate')
-                settingsUpdateButtonStatus('업데이트 확인중...', true)
+                settingsUpdateButtonStatus('Checking for Updates..', true)
             }
         })
     }
@@ -1431,9 +1343,8 @@ function prepareSettings(first = false) {
     initSettingsValues()
     prepareAccountsTab()
     prepareJavaTab()
-    prepareLauncherTab()
     prepareAboutTab()
 }
 
 // Prepare the settings UI on startup.
-prepareSettings(true)
+//prepareSettings(true)

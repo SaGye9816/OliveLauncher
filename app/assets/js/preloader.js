@@ -14,7 +14,7 @@ logger.log('Loading..')
 ConfigManager.load()
 
 // Load Strings
-LangLoader.loadLanguage('ko_KR')
+LangLoader.loadLanguage('en_US')
 
 function onDistroLoad(data){
     if(data != null){
@@ -38,6 +38,7 @@ DistroManager.pullRemote().then((data) => {
 }).catch((err) => {
     logger.log('Failed to load distribution index.')
     logger.error(err)
+
     logger.log('Attempting to load an older version of the distribution index.')
     // Try getting a local copy, better than nothing.
     DistroManager.pullLocal().then((data) => {
@@ -47,9 +48,11 @@ DistroManager.pullRemote().then((data) => {
 
 
     }).catch((err) => {
+
         logger.log('Failed to load an older version of the distribution index.')
         logger.log('Application cannot run.')
         logger.error(err)
+
         onDistroLoad(null)
 
     })
