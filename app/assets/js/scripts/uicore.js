@@ -5,14 +5,13 @@
  * modules, excluding dependencies.
  */
 // Requirements
-const $                              = require('jquery')
-const {ipcRenderer, shell, webFrame} = require('electron')
-const remote                         = require('@electron/remote')
-const isDev                          = require('./assets/js/isdev')
-const LoggerUtil                     = require('./assets/js/loggerutil')
+const $ = require('jquery')
+const { ipcRenderer, remote, shell, webFrame } = require('electron')
+const isDev = require('./assets/js/isdev')
+const LoggerUtil = require('./assets/js/loggerutil')
 
-const loggerUICore             = LoggerUtil('%c[UICore]', 'color: #000668; font-weight: bold')
-const loggerAutoUpdater        = LoggerUtil('%c[AutoUpdater]', 'color: #000668; font-weight: bold')
+const loggerUICore = LoggerUtil('%c[UICore]', 'color: #000668; font-weight: bold')
+const loggerAutoUpdater = LoggerUtil('%c[AutoUpdater]', 'color: #000668; font-weight: bold')
 const loggerAutoUpdaterSuccess = LoggerUtil('%c[AutoUpdater]', 'color: #209b07; font-weight: bold')
 
 // Log deprecation and process warnings.
@@ -21,16 +20,9 @@ process.traceDeprecation = true
 
 // Disable eval function.
 // eslint-disable-next-line
-window.eval = global.eval = function () {
+window.eval = global.eval = function() {
     throw new Error('Sorry, this app does not support window.eval().')
 }
-
-// Display warning when devtools window is opened.
-remote.getCurrentWebContents().on('devtools-opened', () => {
-    console.log('%cThe console is dark and full of terrors.', 'color: white; -webkit-text-stroke: 4px #a02d2a; font-size: 60px; font-weight: bold')
-    console.log('%cIf you\'ve been told to paste something here, you\'re being scammed.', 'font-size: 16px')
-    console.log('%cUnless you know exactly what you\'re doing, close this window.', 'font-size: 16px')
-})
 
 // Disable zoom, needed for darwin.
 webFrame.setZoomLevel(0)
@@ -38,35 +30,38 @@ webFrame.setVisualZoomLevelLimits(1, 1)
 
 // Initialize auto updates in production environments.
 let updateCheckListener
-if(!isDev){
+if (!isDev) {
     ipcRenderer.on('autoUpdateNotification', (event, arg, info) => {
-        switch(arg){
+        switch (arg) {
             case 'checking-for-update':
-                loggerAutoUpdater.log('Checking for update..')
-                settingsUpdateButtonStatus('Checking for Updates..', true)
+                loggerAutoUpdater.log('업데이트 확인 중...')
+                settingsUpdateButtonStatus('업데이트 확인 중...', true)
                 break
             case 'update-available':
-                loggerAutoUpdaterSuccess.log('New update available', info.version)
-                
-                if(process.platform === 'darwin'){
-                    info.darwindownload = `https://github.com/dscalzi/HeliosLauncher/releases/download/v${info.version}/helioslauncher-setup-${info.version}${process.arch === 'arm64' ? '-arm64' : ''}.dmg`
+                loggerAutoUpdaterSuccess.log('새 업데이트 사용 가능 버전 : ', info.version)
+
+                if (process.platform === 'darwin') {
+                    info.darwindownload = `https://github.com/SaGye-Online/SaGyeLauncher/releases/download/v${info.version}SaGyeLauncher-setup-${info.version}.dmg`
                     showUpdateUI(info)
                 }
-                
+
                 populateSettingsUpdateInformation(info)
                 break
             case 'update-downloaded':
-                loggerAutoUpdaterSuccess.log('Update ' + info.version + ' ready to be installed.')
-                settingsUpdateButtonStatus('Install Now', false, () => {
-                    if(!isDev){
+                loggerAutoUpdaterSuccess.log('업데이트 버전 ' + info.version + ' 설치 준비 완료')
+                settingsUpdateButtonStatus('재부팅시 업데이트가 적용됩니다.', true, () => {
+                    if (!isDev) {
                         ipcRenderer.send('autoUpdateAction', 'installUpdateNow')
                     }
                 })
                 showUpdateUI(info)
                 break
             case 'update-not-available':
-                loggerAutoUpdater.log('No new update found.')
-                settingsUpdateButtonStatus('Check for Updates')
+                loggerAutoUpdater.log('새 업데이트가 없습니다.')
+                settingsUpdateButtonStatus('새 업데이트가 없습니다.')
+                setTimeout(() => {
+                    settingsUpdateButtonStatus('업데이트 확인')
+                }, 5000)
                 break
             case 'ready':
                 updateCheckListener = setInterval(() => {
@@ -75,10 +70,10 @@ if(!isDev){
                 ipcRenderer.send('autoUpdateAction', 'checkForUpdate')
                 break
             case 'realerror':
-                if(info != null && info.code != null){
-                    if(info.code === 'ERR_UPDATER_INVALID_RELEASE_FEED'){
+                if (info != null && info.code != null) {
+                    if (info.code === 'ERR_UPDATER_INVALID_RELEASE_FEED') {
                         loggerAutoUpdater.log('No suitable releases found.')
-                    } else if(info.code === 'ERR_XML_MISSED_ELEMENT'){
+                    } else if (info.code === 'ERR_XML_MISSED_ELEMENT') {
                         loggerAutoUpdater.log('No releases found.')
                     } else {
                         loggerAutoUpdater.error('Error during update check..', info)
@@ -101,31 +96,11 @@ if(!isDev){
  * 
  * @param {boolean} val The new allow prerelease value.
  */
-function changeAllowPrerelease(val){
+function changeAllowPrerelease(val) {
     ipcRenderer.send('autoUpdateAction', 'allowPrereleaseChange', val)
 }
 
-function showUpdateUI(info){
-    //TODO Make this message a bit more informative `${info.version}`
-    document.getElementById('image_seal_container').setAttribute('update', true)
-    document.getElementById('image_seal_container').onclick = () => {
-        /*setOverlayContent('Update Available', 'A new update for the launcher is available. Would you like to install now?', 'Install', 'Later')
-        setOverlayHandler(() => {
-            if(!isDev){
-                ipcRenderer.send('autoUpdateAction', 'installUpdateNow')
-            } else {
-                console.error('Cannot install updates in development environment.')
-                toggleOverlay(false)
-            }
-        })
-        setDismissHandler(() => {
-            toggleOverlay(false)
-        })
-        toggleOverlay(true, true)*/
-        switchView(getCurrentView(), VIEWS.settings, 500, 500, () => {
-            settingsNavItemListener(document.getElementById('settingsNavUpdate'), false)
-        })
-    }
+function showUpdateUI(info) {
 }
 
 /* jQuery Example
@@ -133,8 +108,8 @@ $(function(){
     loggerUICore.log('UICore Initialized');
 })*/
 
-document.addEventListener('readystatechange', function () {
-    if (document.readyState === 'interactive'){
+document.addEventListener('readystatechange', function() {
+    if (document.readyState === 'interactive') {
         loggerUICore.log('UICore Initializing..')
 
         // Bind close button.
@@ -149,7 +124,7 @@ document.addEventListener('readystatechange', function () {
         Array.from(document.getElementsByClassName('fRb')).map((val) => {
             val.addEventListener('click', e => {
                 const window = remote.getCurrentWindow()
-                if(window.isMaximized()){
+                if (window.isMaximized()) {
                     window.unmaximize()
                 } else {
                     window.maximize()
@@ -174,7 +149,7 @@ document.addEventListener('readystatechange', function () {
             })
         })
 
-    } else if(document.readyState === 'complete'){
+    } else if (document.readyState === 'complete') {
 
         //266.01
         //170.8
@@ -188,7 +163,7 @@ document.addEventListener('readystatechange', function () {
         document.getElementById('launch_progress').style.width = 170.8
         document.getElementById('launch_details_right').style.maxWidth = 170.8
         document.getElementById('launch_progress_label').style.width = 53.21
-        
+
     }
 
 }, false)
@@ -206,8 +181,8 @@ $(document).on('click', 'a[href^="http"]', function(event) {
  * This will crash the program if you are using multiple
  * DevTools, for example the chrome debugger in VS Code. 
  */
-document.addEventListener('keydown', function (e) {
-    if((e.key === 'I' || e.key === 'i') && e.ctrlKey && e.shiftKey){
+document.addEventListener('keydown', function(e) {
+    if ((e.key === 'I' || e.key === 'i') && e.ctrlKey && e.shiftKey) {
         let window = remote.getCurrentWindow()
         window.toggleDevTools()
     }

@@ -5,8 +5,8 @@
     "js": {
         "login": {
             "error": {
-                "invalidValue": "* Invalid Value",
-                "requiredValue": "* Required",
+                "invalidValue": "* 알수없는 값",
+                "requiredValue": "* 필수",
                 "userMigrated": {
                     "title": "Error During Login:<br>Invalid Credentials",
                     "desc": "You've attempted to login with a migrated account. Try again using the account email as the username."
@@ -35,14 +35,14 @@
                     "title": "Error During Login:<br>Unknown Error"
                 }
             },
-            "login": "LOGIN",
-            "loggingIn": "LOGGING IN",
-            "success": "SUCCESS",
-            "tryAgain": "Try Again"
+            "login": "Login",
+            "loggingIn": "로그인 중",
+            "success": "success",
+            "tryAgain": "tryAgain"
         },
         "landing": {
             "launch": {
-                "pleaseWait": "Please wait.."
+                "pleaseWait": "PleaseWait"
             }
         }
     }
