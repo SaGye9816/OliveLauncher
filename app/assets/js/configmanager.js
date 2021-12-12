@@ -5,11 +5,10 @@ const path = require('path')
 const logger = require('./loggerutil')('%c[ConfigManager]', 'color: #a02d2a; font-weight: bold')
 
 const sysRoot = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support' : process.env.HOME)
-// TODO change
-const dataPath = path.join(sysRoot, '.helioslauncher')
+const dataPath = path.join(sysRoot, '.gamgul')
 
 // Forked processes do not have access to electron, so we have this workaround.
-const launcherDir = process.env.CONFIG_DIRECT_PATH || require('@electron/remote').app.getPath('userData')
+const launcherDir = process.env.CONFIG_DIRECT_PATH || require('electron').remote.app.getPath('userData')
 
 /**
  * Retrieve the absolute path of the launcher directory.
@@ -42,6 +41,25 @@ exports.setDataDirectory = function(dataDirectory){
 const configPath = path.join(exports.getLauncherDirectory(), 'config.json')
 const configPathLEGACY = path.join(dataPath, 'config.json')
 const firstLaunch = !fs.existsSync(configPath) && !fs.existsSync(configPathLEGACY)
+
+/**
+ * Get the launcher's available server codes. This will be used to load hidden servers.
+ *
+ * @returns {string[]} The server codes list that has been put into the launcher's configuration
+ */
+exports.getServerCodes = function(){
+    return config.settings.launcher.serverCodes
+}
+
+/**
+ * Set the new server code
+ *
+ * @param {string[]} serverCodes The new server code list.
+ */
+exports.setServerCodes = function(serverCodes){
+    config.settings.launcher.serverCodes = serverCodes
+}
+
 
 exports.getAbsoluteMinRAM = function(){
     const mem = os.totalmem()
@@ -91,7 +109,9 @@ const DEFAULT_CONFIG = {
         },
         launcher: {
             allowPrerelease: false,
-            dataDirectory: dataPath
+            dataDirectory: dataPath,
+            serverCodes: []
+
         }
     },
     newsCache: {
@@ -103,7 +123,8 @@ const DEFAULT_CONFIG = {
     selectedServer: null, // Resolved
     selectedAccount: null,
     authenticationDatabase: {},
-    modConfigurations: []
+    modConfigurations: [],
+    microsoftAuth: {}
 }
 
 let config = null
@@ -239,6 +260,7 @@ exports.setNewsCacheDismissed = function(dismissed){
     config.newsCache.dismissed = dismissed
 }
 
+
 /**
  * Retrieve the common directory for shared
  * game files (assets, libraries, etc).
@@ -325,8 +347,10 @@ exports.getAuthAccount = function(uuid){
  * 
  * @returns {Object} The authenticated account object created by this action.
  */
-exports.updateAuthAccount = function(uuid, accessToken){
+exports.updateAuthAccount = function(uuid, accessToken, expiresAt = null){
     config.authenticationDatabase[uuid].accessToken = accessToken
+    config.authenticationDatabase[uuid].expiresAt = expiresAt
+    
     return config.authenticationDatabase[uuid]
 }
 
@@ -337,16 +361,19 @@ exports.updateAuthAccount = function(uuid, accessToken){
  * @param {string} accessToken The accessToken of the authenticated account.
  * @param {string} username The username (usually email) of the authenticated account.
  * @param {string} displayName The in game name of the authenticated account.
+ * @param {string} type Type of account, default is mojang (mojang or microsoft)
  * 
  * @returns {Object} The authenticated account object created by this action.
  */
-exports.addAuthAccount = function(uuid, accessToken, username, displayName){
+exports.addAuthAccount = function(uuid, accessToken, username, displayName, expiresAt = null, type = 'mojang'){
     config.selectedAccount = uuid
     config.authenticationDatabase[uuid] = {
         accessToken,
         username: username.trim(),
         uuid: uuid.trim(),
-        displayName: displayName.trim()
+        displayName: displayName.trim(),
+        expiresAt: expiresAt,
+        type: type
     }
     return config.authenticationDatabase[uuid]
 }
@@ -685,4 +712,19 @@ exports.getAllowPrerelease = function(def = false){
  */
 exports.setAllowPrerelease = function(allowPrerelease){
     config.settings.launcher.allowPrerelease = allowPrerelease
+}
+
+exports.setMicrosoftAuth = microsoftAuth => {
+    config.microsoftAuth = microsoftAuth
+}
+
+exports.getMicrosoftAuth = () => {
+    return config.microsoftAuth
+}
+
+exports.updateMicrosoftAuth = (accessToken, expiresAt) => {
+    config.microsoftAuth.access_token = accessToken
+    config.microsoftAuth.expires_at = expiresAt
+    
+    return config.microsoftAuth
 }

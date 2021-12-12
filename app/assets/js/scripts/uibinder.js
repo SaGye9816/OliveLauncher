@@ -99,9 +99,9 @@ function showMainUI(data){
         
     }, 750)
     // Disable tabbing to the news container.
-    initNews().then(() => {
+    /*initNews().then(() => {
         $('#newsContainer *').attr('tabindex', '-1')
-    })
+    })*/
 }
 
 function showFatalStartupError(){
@@ -130,8 +130,8 @@ function showFatalStartupError(){
 function onDistroRefresh(data){
     updateSelectedServer(data.getServer(ConfigManager.getSelectedServer()))
     refreshServerStatus()
-    initNews()
     syncModConfigurations(data)
+    initNews()
 }
 
 /**
@@ -323,10 +323,10 @@ async function validateSelectedAccount(){
             ConfigManager.save()
             const accLen = Object.keys(ConfigManager.getAuthAccounts()).length
             setOverlayContent(
-                'Failed to Refresh Login',
-                `We were unable to refresh the login for <strong>${selectedAcc.displayName}</strong>. Please ${accLen > 0 ? 'select another account or ' : ''} login again.`,
-                'Login',
-                'Select Another Account'
+                '로그인 동기화 실패',
+                `로그인 동기화에 실패했습니다. 실패 계정 : <strong>${selectedAcc.displayName}</strong>. ${accLen > 0 ? '다른계정으로 로그인 해주세요' : ''} 재로그인 해주세요`,
+                '로그인',
+                '다른계정으로 로그인'
             )
             setOverlayHandler(() => {
                 document.getElementById('loginUsername').value = selectedAcc.username
