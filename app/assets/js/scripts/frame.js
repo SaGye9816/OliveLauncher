@@ -15,8 +15,8 @@ const refreshServerStatus = async function(fade = false){
     loggerLanding.log('서버상태 새로고침 중')
     const serv = DistroManager.getDistribution().getServer(ConfigManager.getSelectedServer())
 
-    let pLabel = 'Server'
-    let pVal = 'Offine'
+    let pLabel = 'SERVER'
+    let pVal = 'OFFLINE'
 
 
     try {
