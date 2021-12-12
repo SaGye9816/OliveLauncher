@@ -567,7 +567,7 @@ exports.pullRemote = function(){
         return exports.pullLocal()
     }
     return new Promise((resolve, reject) => {
-        const distroURL = 'https://gist.githubusercontent.com/SaGye9816/672e8d3c2df833ea6d0411e9f96c724f/raw/8f6bb2ea72443c97a98e81681a21a989e26269c9/'
+        const distroURL = 'https://gist.githubusercontent.com/SaGye9816/672e8d3c2df833ea6d0411e9f96c724f/raw/aa500c97d3ba7264d2d6c6ade78a31ce25f70f58/distribution.json'
         const opts = {
             url: distroURL,
             timeout: 2500
