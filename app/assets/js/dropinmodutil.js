@@ -80,7 +80,7 @@ exports.addDropinMods = function(files, modsdir) {
 
     for(let f of files) {
         if(MOD_REGEX.exec(f.name) != null) {
-            fs.copyFile(f.path, path.join(modsdir, f.name))
+            fs.moveSync(f.path, path.join(modsdir, f.name))
         }
     }
 
@@ -92,14 +92,17 @@ exports.addDropinMods = function(files, modsdir) {
  * @param {string} modsDir The path to the mods directory.
  * @param {string} fullName The fullName of the discovered mod to delete.
  * 
- * @returns {boolean} True if the mod was deleted, otherwise false.
+ * @returns {Promise.<boolean>} True if the mod was deleted, otherwise false.
  */
-exports.deleteDropinMod = function(modsDir, fullName){
-    const res = shell.moveItemToTrash(path.join(modsDir, fullName))
-    if(!res){
+exports.deleteDropinMod = async function(modsDir, fullName){
+    try {
+        await shell.trashItem(path.join(modsDir, fullName))
+        return true
+    } catch(error) {
         shell.beep()
+        console.error('Error deleting drop-in mod.', error)
+        return false
     }
-    return res
 }
 
 /**
@@ -149,8 +152,8 @@ exports.isDropinModEnabled = function(fullName){
 exports.scanForShaderpacks = function(instanceDir){
     const shaderDir = path.join(instanceDir, SHADER_DIR)
     const packsDiscovered = [{
-        fullName: '미사용',
-        name: '미사용 (기본)'
+        fullName: 'OFF',
+        name: 'Off (Default)'
     }]
     if(fs.existsSync(shaderDir)){
         let modCandidates = fs.readdirSync(shaderDir)

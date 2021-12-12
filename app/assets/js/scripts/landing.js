@@ -1,27 +1,28 @@
 /**
  * Script for landing.ejs
  */
+// Requirements
+const cp                      = require('child_process')
+const crypto                  = require('crypto')
+const { URL }                 = require('url')
+const { getServerStatus }     = require('helios-core')
 
 // Internal Requirements
-const DiscordWrapper = require('./assets/js/discordwrapper')
-const Mojang = require('./assets/js/mojang')
-const ProcessBuilder = require('./assets/js/processbuilder')
-const status = require('./assets/js/scripts/status')
- 
+const DiscordWrapper          = require('./assets/js/discordwrapper')
+const Mojang                  = require('./assets/js/mojang')
+const ProcessBuilder          = require('./assets/js/processbuilder')
+const ServerStatus            = require('./assets/js/serverstatus')
+
 // Launch Elements
-const launch_content = document.getElementById('launch_content')
-const launch_details = document.getElementById('launch_details')
-const launch_progress = document.getElementById('launch_progress')
-const launch_progress_label = document.getElementById('launch_progress_label')
-const launch_details_text = document.getElementById('launch_details_text')
+const launch_content          = document.getElementById('launch_content')
+const launch_details          = document.getElementById('launch_details')
+const launch_progress         = document.getElementById('launch_progress')
+const launch_progress_label   = document.getElementById('launch_progress_label')
+const launch_details_text     = document.getElementById('launch_details_text')
 const server_selection_button = document.getElementById('server_selection_button')
+const user_text               = document.getElementById('user_text')
 
-//Logger
-const DiscordLogger = require('./assets/js/loggerutil')('%c[Discord]', 'color: #7289da; font-weight: bold')
 const loggerLanding = LoggerUtil('%c[Landing]', 'color: #000668; font-weight: bold')
-const loggerAEx = LoggerUtil('%c[AEx]', 'color: #353232; font-weight: bold')
-const loggerLaunchSuite = LoggerUtil('%c[LaunchSuite]', 'color: #000668; font-weight: bold')
-
 
 /* Launch Progress Wrapper Functions */
 
@@ -30,8 +31,8 @@ const loggerLaunchSuite = LoggerUtil('%c[LaunchSuite]', 'color: #000668; font-we
  * 
  * @param {boolean} loading True if the loading area should be shown, otherwise false.
  */
-function toggleLaunchArea(loading) {
-    if (loading) {
+function toggleLaunchArea(loading){
+    if(loading){
         launch_details.style.display = 'flex'
         launch_content.style.display = 'none'
     } else {
@@ -40,24 +41,12 @@ function toggleLaunchArea(loading) {
     }
 }
 
-
-function showLaunchFailure(title, desc,code ) {
-    setOverlayContent(
-        title,
-        desc,
-        '확인'
-    )
-    setOverlayHandler(null)
-    toggleOverlay(true)
-    toggleLaunchArea(false)
-}
-
 /**
  * Set the details text of the loading area.
  * 
  * @param {string} details The new text for the loading details.
  */
-function setLaunchDetails(details) {
+function setLaunchDetails(details){
     launch_details_text.innerHTML = details
 }
 
@@ -68,7 +57,7 @@ function setLaunchDetails(details) {
  * @param {number} max The total size.
  * @param {number|string} percent Optional. The percentage to display on the progress label.
  */
-function setLaunchPercentage(value, max, percent = ((value / max) * 100)) {
+function setLaunchPercentage(value, max, percent = ((value/max)*100)){
     launch_progress.setAttribute('max', max)
     launch_progress.setAttribute('value', value)
     launch_progress_label.innerHTML = percent + '%'
@@ -81,8 +70,8 @@ function setLaunchPercentage(value, max, percent = ((value / max) * 100)) {
  * @param {number} max The total download size.
  * @param {number|string} percent Optional. The percentage to display on the progress label.
  */
-function setDownloadPercentage(value, max, percent = ((value / max) * 100)) {
-    remote.getCurrentWindow().setProgressBar(value / max)
+function setDownloadPercentage(value, max, percent = ((value/max)*100)){
+    remote.getCurrentWindow().setProgressBar(value/max)
     setLaunchPercentage(value, max, percent)
 }
 
@@ -91,51 +80,32 @@ function setDownloadPercentage(value, max, percent = ((value / max) * 100)) {
  * 
  * @param {boolean} val True to enable, false to disable.
  */
-function setLaunchEnabled(val) {
+function setLaunchEnabled(val){
     document.getElementById('launch_button').disabled = !val
 }
 
 // Bind launch button
-document.getElementById('launch_button').addEventListener('click', function(e) {
-    if (checkCurrentServer(true)) {
-        loggerLanding.log('게임 시작 중...')
-        const mcVersion = DistroManager.getDistribution().getServer(ConfigManager.getSelectedServer()).getMinecraftVersion()
-        const jExe = ConfigManager.getJavaExecutable()
-        if (jExe == null) {
-            asyncSystemScan(mcVersion)
-        } else {
-            try {
-                const selectedServId = ConfigManager.getSelectedServer()
-                if (selectedServId) {
-                    const selectedServ = DistroManager.getDistribution().getServer(selectedServId)
-                    if (selectedServ) {
-                        if (selectedServ.getServerConnect() == false) {
-                            setLaunchDetails('서버 접속가능 여부 체크 중')
-                            setLaunchPercentage(0, 100)
-                            showLaunchFailure('서버 접속불가', '감귤농장에 접속할 수 없습니다.<br><br>디스코드를 확인해주세요.')
-                            toggleLaunchArea(false)
-                        } else {
-                            setLaunchDetails('준비 중...')
-                            toggleLaunchArea(true)
-                            setLaunchPercentage(0, 100)
-                            const jg = new JavaGuard(mcVersion)
-                            jg._validateJavaBinary(jExe).then((v) => {
-                                loggerLanding.log('Java version meta', v)
-                                if(v.valid){
-                                    dlAsync()
-                                } else {
-                                    asyncSystemScan(mcVersion)
-                                }
-                            })
-                        }
-                    }
-                }
-            } catch (e) {
-                loggerLanding.error(e + ' 오류발생')
-                showLaunchFailure('알 수 없는 오류', '오류가 발생했습니다. <br><br>'+e)
-                toggleLaunchArea(false)
+document.getElementById('launch_button').addEventListener('click', function(e){
+    loggerLanding.log('Launching game..')
+    const mcVersion = DistroManager.getDistribution().getServer(ConfigManager.getSelectedServer()).getMinecraftVersion()
+    const jExe = ConfigManager.getJavaExecutable()
+    if(jExe == null){
+        asyncSystemScan(mcVersion)
+    } else {
+
+        setLaunchDetails(Lang.queryJS('landing.launch.pleaseWait'))
+        toggleLaunchArea(true)
+        setLaunchPercentage(0, 100)
+
+        const jg = new JavaGuard(mcVersion)
+        jg._validateJavaBinary(jExe).then((v) => {
+            loggerLanding.log('Java version meta', v)
+            if(v.valid){
+                dlAsync()
+            } else {
+                asyncSystemScan(mcVersion)
             }
-        }
+        })
     }
 })
 
@@ -167,25 +137,124 @@ function updateSelectedAccount(authUser){
     user_text.innerHTML = username
 }
 updateSelectedAccount(ConfigManager.getSelectedAccount())
+
 // Bind selected server
-function updateSelectedServer(serv) {
-    if (getCurrentView() === VIEWS.settings) {
+function updateSelectedServer(serv){
+    if(getCurrentView() === VIEWS.settings){
         saveAllModConfigurations()
     }
     ConfigManager.setSelectedServer(serv != null ? serv.getID() : null)
     ConfigManager.save()
-    server_selection_button.innerHTML = '\u2022 ' + (serv != null ? serv.getName() : '선택된 서버 없음')
-    if (getCurrentView() === VIEWS.settings) {
+    server_selection_button.innerHTML = '\u2022 ' + (serv != null ? serv.getName() : 'No Server Selected')
+    if(getCurrentView() === VIEWS.settings){
         animateModsTabRefresh()
     }
     setLaunchEnabled(serv != null)
 }
 // Real text is set in uibinder.js on distributionIndexDone.
-server_selection_button.innerHTML = '\u2022 서버 선택'
+server_selection_button.innerHTML = '\u2022 Loading..'
 server_selection_button.onclick = (e) => {
     e.target.blur()
     toggleServerSelection(true)
 }
+
+// Update Mojang Status Color
+const refreshMojangStatuses = async function(){
+    loggerLanding.log('Refreshing Mojang Statuses..')
+
+    let status = 'grey'
+    let tooltipEssentialHTML = ''
+    let tooltipNonEssentialHTML = ''
+
+    try {
+        const statuses = await Mojang.status()
+        greenCount = 0
+        greyCount = 0
+
+        for(let i=0; i<statuses.length; i++){
+            const service = statuses[i]
+
+            if(service.essential){
+                tooltipEssentialHTML += `<div class="mojangStatusContainer">
+                    <span class="mojangStatusIcon" style="color: ${Mojang.statusToHex(service.status)};">&#8226;</span>
+                    <span class="mojangStatusName">${service.name}</span>
+                </div>`
+            } else {
+                tooltipNonEssentialHTML += `<div class="mojangStatusContainer">
+                    <span class="mojangStatusIcon" style="color: ${Mojang.statusToHex(service.status)};">&#8226;</span>
+                    <span class="mojangStatusName">${service.name}</span>
+                </div>`
+            }
+
+            if(service.status === 'yellow' && status !== 'red'){
+                status = 'yellow'
+            } else if(service.status === 'red'){
+                status = 'red'
+            } else {
+                if(service.status === 'grey'){
+                    ++greyCount
+                }
+                ++greenCount
+            }
+
+        }
+
+        if(greenCount === statuses.length){
+            if(greyCount === statuses.length){
+                status = 'grey'
+            } else {
+                status = 'green'
+            }
+        }
+
+    } catch (err) {
+        loggerLanding.warn('Unable to refresh Mojang service status.')
+        loggerLanding.debug(err)
+    }
+    
+    document.getElementById('mojangStatusEssentialContainer').innerHTML = tooltipEssentialHTML
+    document.getElementById('mojangStatusNonEssentialContainer').innerHTML = tooltipNonEssentialHTML
+    document.getElementById('mojang_status_icon').style.color = Mojang.statusToHex(status)
+}
+
+const refreshServerStatus = async function(fade = false){
+    loggerLanding.log('Refreshing Server Status')
+    const serv = DistroManager.getDistribution().getServer(ConfigManager.getSelectedServer())
+
+    let pLabel = 'SERVER'
+    let pVal = 'OFFLINE'
+
+    try {
+        const serverURL = new URL('my://' + serv.getAddress())
+
+        const servStat = await getServerStatus(47, serverURL.hostname, Number(serverURL.port))
+        console.log(servStat)
+        pLabel = 'PLAYERS'
+        pVal = servStat.players.online + '/' + servStat.players.max
+
+    } catch (err) {
+        loggerLanding.warn('Unable to refresh server status, assuming offline.')
+        loggerLanding.debug(err)
+    }
+    if(fade){
+        $('#server_status_wrapper').fadeOut(250, () => {
+            document.getElementById('landingPlayerLabel').innerHTML = pLabel
+            document.getElementById('player_count').innerHTML = pVal
+            $('#server_status_wrapper').fadeIn(500)
+        })
+    } else {
+        document.getElementById('landingPlayerLabel').innerHTML = pLabel
+        document.getElementById('player_count').innerHTML = pVal
+    }
+    
+}
+
+refreshMojangStatuses()
+// Server Status is refreshed in uibinder.js on distributionIndexDone.
+
+// Set refresh rate to once every 5 minutes.
+let mojangStatusListener = setInterval(() => refreshMojangStatuses(true), 300000)
+let serverStatusListener = setInterval(() => refreshServerStatus(true), 300000)
 
 /**
  * Shows an error overlay, toggles off the launch area.
@@ -193,6 +262,16 @@ server_selection_button.onclick = (e) => {
  * @param {string} title The overlay title.
  * @param {string} desc The overlay description.
  */
+function showLaunchFailure(title, desc){
+    setOverlayContent(
+        title,
+        desc,
+        'Okay'
+    )
+    setOverlayHandler(null)
+    toggleOverlay(true)
+    toggleLaunchArea(false)
+}
 
 /* System (Java) Scan */
 
@@ -207,9 +286,9 @@ let extractListener
  * @param {string} mcVersion The Minecraft version we are scanning for.
  * @param {boolean} launchAfter Whether we should begin to launch after scanning. 
  */
-function asyncSystemScan(mcVersion, launchAfter = true) {
+function asyncSystemScan(mcVersion, launchAfter = true){
 
-    setLaunchDetails('준비 중...')
+    setLaunchDetails('Please wait..')
     toggleLaunchArea(true)
     setLaunchPercentage(0, 100)
 
@@ -236,33 +315,33 @@ function asyncSystemScan(mcVersion, launchAfter = true) {
     sysAEx.stdio[2].on('data', (data) => {
         loggerSysAEx.log(data)
     })
-
+    
     sysAEx.on('message', (m) => {
 
-        if (m.context === 'validateJava') {
-            if (m.result == null) {
+        if(m.context === 'validateJava'){
+            if(m.result == null){
                 // If the result is null, no valid Java installation was found.
                 // Show this information to the user.
                 setOverlayContent(
-                    '호환되는<br>자바 설치 찾을수 없음.',
-                    '사계 온라인을 플레이하려면 64Bit 자바 8이 필요합니다.. 자바를 설치하겠습니까? <a href="http://www.oracle.com/technetwork/java/javase/terms/license/index.html">오라클 라이센스 계약</a>.',
-                    '자바 설치(자동)',
-                    '메뉴얼대로 설치'
+                    'No Compatible<br>Java Installation Found',
+                    'In order to join WesterosCraft, you need a 64-bit installation of Java 8. Would you like us to install a copy?',
+                    'Install Java',
+                    'Install Manually'
                 )
                 setOverlayHandler(() => {
-                    setLaunchDetails('자바 설치중..')
-                    sysAEx.send({ task: 'changeContext', class: 'AssetGuard', args: [ConfigManager.getCommonDirectory(), ConfigManager.getJavaExecutable()] })
-                    sysAEx.send({ task: 'execute', function: '_enqueueOpenJDK', argsArr: [ConfigManager.getDataDirectory()] })
+                    setLaunchDetails('Preparing Java Download..')
+                    sysAEx.send({task: 'changeContext', class: 'AssetGuard', args: [ConfigManager.getCommonDirectory(),ConfigManager.getJavaExecutable()]})
+                    sysAEx.send({task: 'execute', function: '_enqueueOpenJDK', argsArr: [ConfigManager.getDataDirectory()]})
                     toggleOverlay(false)
                 })
                 setDismissHandler(() => {
                     $('#overlayContent').fadeOut(250, () => {
                         //$('#overlayDismiss').toggle(false)
                         setOverlayContent(
-                            '자바 필요',
-                            '64비트 설치를위해 자바 버전 8이필요합니다.<br><br>문서 확인(해외) <a href="https://github.com/dscalzi/HeliosLauncher/wiki/Java-Management#manually-installing-a-valid-version-of-java">Java Management Guide</a> for instructions on how to manually install Java.',
-                            '확인',
-                            '뒤로가기'
+                            'Java is Required<br>to Launch',
+                            'A valid x64 installation of Java 8 is required to launch.<br><br>Please refer to our <a href="https://github.com/dscalzi/HeliosLauncher/wiki/Java-Management#manually-installing-a-valid-version-of-java">Java Management Guide</a> for instructions on how to manually install Java.',
+                            'I Understand',
+                            'Go Back'
                         )
                         setOverlayHandler(() => {
                             toggleLaunchArea(false)
@@ -287,31 +366,27 @@ function asyncSystemScan(mcVersion, launchAfter = true) {
                 settingsJavaExecVal.value = m.result
                 populateJavaExecDetails(settingsJavaExecVal.value)
 
-                if (launchAfter) {
+                if(launchAfter){
                     dlAsync()
                 }
                 sysAEx.disconnect()
             }
-        } else if (m.context === '_enqueueOpenJDK') {
+        } else if(m.context === '_enqueueOpenJDK'){
 
-            if (m.result === true) {
+            if(m.result === true){
 
                 // Oracle JRE enqueued successfully, begin download.
-                setLaunchDetails('자바 설치 중')
-                sysAEx.send({
-                    task: 'execute',
-                    function: 'processDlQueues',
-                    argsArr: [
-                        [{ id: 'java', limit: 1 }]
-                    ]
-                })
+                setLaunchDetails('Downloading Java..')
+                sysAEx.send({task: 'execute', function: 'processDlQueues', argsArr: [[{id:'java', limit:1}]]})
 
             } else {
 
                 // Oracle JRE enqueue failed. Probably due to a change in their website format.
                 // User will have to follow the guide to install Java.
                 setOverlayContent(
-                    '자바 설치 실패'
+                    'Unexpected Issue:<br>Java Download Failed',
+                    'Unfortunately we\'ve encountered an issue while attempting to install Java. You will need to manually install a copy. Please check out our <a href="https://github.com/dscalzi/HeliosLauncher/wiki">Troubleshooting Guide</a> for more details and instructions.',
+                    'I Understand'
                 )
                 setOverlayHandler(() => {
                     toggleOverlay(false)
@@ -322,29 +397,28 @@ function asyncSystemScan(mcVersion, launchAfter = true) {
 
             }
 
-        } else if (m.context === 'progress') {
+        } else if(m.context === 'progress'){
 
-            switch (m.data) {
+            switch(m.data){
                 case 'download':
                     // Downloading..
                     setDownloadPercentage(m.value, m.total, m.percent)
                     break
             }
 
-        } else if (m.context === 'complete') {
+        } else if(m.context === 'complete'){
 
-            switch (m.data) {
-                case 'download':
-                {
+            switch(m.data){
+                case 'download': {
                     // Show installing progress bar.
                     remote.getCurrentWindow().setProgressBar(2)
 
                     // Wait for extration to complete.
-                    const eLStr = '압축 해제 중...'
+                    const eLStr = 'Extracting'
                     let dotStr = ''
                     setLaunchDetails(eLStr)
                     extractListener = setInterval(() => {
-                        if (dotStr.length >= 3) {
+                        if(dotStr.length >= 3){
                             dotStr = ''
                         } else {
                             dotStr += '.'
@@ -354,21 +428,21 @@ function asyncSystemScan(mcVersion, launchAfter = true) {
                     break
                 }
                 case 'java':
-                    // Download & extraction complete, remove the loading from the OS progress bar.
+                // Download & extraction complete, remove the loading from the OS progress bar.
                     remote.getCurrentWindow().setProgressBar(-1)
 
                     // Extraction completed successfully.
                     ConfigManager.setJavaExecutable(m.args[0])
                     ConfigManager.save()
 
-                    if (extractListener != null) {
+                    if(extractListener != null){
                         clearInterval(extractListener)
                         extractListener = null
                     }
 
-                    setLaunchDetails('자바 설치 완료!')
+                    setLaunchDetails('Java Installed!')
 
-                    if (launchAfter) {
+                    if(launchAfter){
                         dlAsync()
                     }
 
@@ -376,14 +450,14 @@ function asyncSystemScan(mcVersion, launchAfter = true) {
                     break
             }
 
-        } else if (m.context === 'error') {
+        } else if(m.context === 'error'){
             console.log(m.error)
         }
     })
 
     // Begin system Java scan.
-    setLaunchDetails('시스템 정보 확인 중')
-    sysAEx.send({ task: 'execute', function: 'validateJava', argsArr: [ConfigManager.getDataDirectory()] })
+    setLaunchDetails('Checking system info..')
+    sysAEx.send({task: 'execute', function: 'validateJava', argsArr: [ConfigManager.getDataDirectory()]})
 
 }
 
@@ -393,7 +467,6 @@ let proc
 let hasRPC = false
 // Joined server regex
 // Change this if your server uses something different.
-const SERVER_JOINED_REGEX = /\[.+\]: \[CHAT\] + [a-zA-Z0-9_]{1,16}/
 const GAME_JOINED_REGEX = /\[.+\]: Sound engine started/
 const GAME_LAUNCH_REGEX = /^\[.+\]: (?:MinecraftForge .+ Initialized|ModLauncher .+ starting: .+)$/
 const MIN_LINGER = 5000
@@ -405,21 +478,24 @@ let forgeData
 
 let progressListener
 
-function dlAsync(login = true) {
+function dlAsync(login = true){
 
     // Login parameter is temporary for debug purposes. Allows testing the validation/downloads without
     // launching the game.
 
-    if (login) {
-        if (ConfigManager.getSelectedAccount() == null) {
-            loggerLanding.error('계정을 로그인해주세요.')
+    if(login) {
+        if(ConfigManager.getSelectedAccount() == null){
+            loggerLanding.error('You must be logged into an account.')
             return
         }
     }
 
-    setLaunchDetails('기다려주세요.')
+    setLaunchDetails('Please wait..')
     toggleLaunchArea(true)
     setLaunchPercentage(0, 100)
+
+    const loggerAEx = LoggerUtil('%c[AEx]', 'color: #353232; font-weight: bold')
+    const loggerLaunchSuite = LoggerUtil('%c[LaunchSuite]', 'color: #000668; font-weight: bold')
 
     const forkEnv = JSON.parse(JSON.stringify(process.env))
     forkEnv.CONFIG_DIRECT_PATH = ConfigManager.getLauncherDirectory()
@@ -444,69 +520,67 @@ function dlAsync(login = true) {
         loggerAEx.log(data)
     })
     aEx.on('error', (err) => {
-        loggerLaunchSuite.error('오류가 발생했습니다.', err)
-        showLaunchFailure('실행 오류', err.message || '개발자 콘솔 (CTRL + Shift + i) 을 열어 자세한 정보를 확인하세요')
+        loggerLaunchSuite.error('Error during launch', err)
+        showLaunchFailure('Error During Launch', err.message || 'See console (CTRL + Shift + i) for more details.')
     })
     aEx.on('close', (code, signal) => {
-        if (code !== 0) {
+        if(code !== 0){
             loggerLaunchSuite.error(`AssetExec exited with code ${code}, assuming error.`)
-            showLaunchFailure('실행 오류', '개발자 콘솔 (CTRL + Shift + i) 을 열어 자세한 정보를 확인하세요')
+            showLaunchFailure('Error During Launch', 'See console (CTRL + Shift + i) for more details.')
         }
     })
 
     // Establish communications between the AssetExec and current process.
     aEx.on('message', (m) => {
 
-        if (m.context === 'validate') {
-            switch (m.data) {
+        if(m.context === 'validate'){
+            switch(m.data){
                 case 'distribution':
-                    setLaunchPercentage(15, 100)
+                    setLaunchPercentage(20, 100)
                     loggerLaunchSuite.log('Validated distibution index.')
-                    setLaunchDetails('버전정보 로딩 중..')
+                    setLaunchDetails('Loading version information..')
                     break
                 case 'version':
-                    setLaunchPercentage(30, 100)
+                    setLaunchPercentage(40, 100)
                     loggerLaunchSuite.log('Version data loaded.')
-                    setLaunchDetails('에셋 무결성 검증 중..')
+                    setLaunchDetails('Validating asset integrity..')
                     break
                 case 'assets':
-                    setLaunchPercentage(50, 100)
+                    setLaunchPercentage(60, 100)
                     loggerLaunchSuite.log('Asset Validation Complete')
-                    setLaunchDetails('라이브러리 무결성 검증 중..')
+                    setLaunchDetails('Validating library integrity..')
                     break
                 case 'libraries':
-                    setLaunchPercentage(70, 100)
+                    setLaunchPercentage(80, 100)
                     loggerLaunchSuite.log('Library validation complete.')
-                    setLaunchDetails('기타 파일 무결성 검증 중..')
+                    setLaunchDetails('Validating miscellaneous file integrity..')
                     break
                 case 'files':
                     setLaunchPercentage(100, 100)
                     loggerLaunchSuite.log('File validation complete.')
-                    setLaunchDetails('파일 다운로드 중..')
+                    setLaunchDetails('Downloading files..')
                     break
             }
-        } else if (m.context === 'progress') {
-            switch (m.data) {
-                case 'assets':
-                {
-                    const perc = (m.value / m.total) * 20
-                    setLaunchPercentage(40 + perc, 100, parseInt(40 + perc))
+        } else if(m.context === 'progress'){
+            switch(m.data){
+                case 'assets': {
+                    const perc = (m.value/m.total)*20
+                    setLaunchPercentage(40+perc, 100, parseInt(40+perc))
                     break
                 }
                 case 'download':
                     setDownloadPercentage(m.value, m.total, m.percent)
                     break
-                case 'extract':
-                {
+                case 'extract': {
                     // Show installing progress bar.
                     remote.getCurrentWindow().setProgressBar(2)
 
                     // Download done, extracting.
-                    const eLStr = '라이브러리 압축해제 중'
+                    const eLStr = 'Extracting libraries'
                     let dotStr = ''
                     setLaunchDetails(eLStr)
                     progressListener = setInterval(() => {
-                        if (dotStr.length >= 3) {
+                        if(dotStr.length >= 3){
                             dotStr = ''
                         } else {
                             dotStr += '.'
@@ -516,33 +590,33 @@ function dlAsync(login = true) {
                     break
                 }
             }
-        } else if (m.context === 'complete') {
-            switch (m.data) {
+        } else if(m.context === 'complete'){
+            switch(m.data){
                 case 'download':
                     // Download and extraction complete, remove the loading from the OS progress bar.
                     remote.getCurrentWindow().setProgressBar(-1)
-                    if (progressListener != null) {
+                    if(progressListener != null){
                         clearInterval(progressListener)
                         progressListener = null
                     }
 
-                    setLaunchDetails('시작 준비중...')
+                    setLaunchDetails('Preparing to launch..')
                     break
             }
-        } else if (m.context === 'error') {
-            switch (m.data) {
+        } else if(m.context === 'error'){
+            switch(m.data){
                 case 'download':
-                    loggerLaunchSuite.error('다운로드 중 오류:', m.error)
-
-                    if (m.error.code === 'ENOENT') {
+                    loggerLaunchSuite.error('Error while downloading:', m.error)
+                    
+                    if(m.error.code === 'ENOENT'){
                         showLaunchFailure(
-                            '다운로드 오류',
-                            '리소스 서버에 접속하지 못했습니다. 네트워크를 확인해주세요.',
+                            'Download Error',
+                            'Could not connect to the file server. Ensure that you are connected to the internet and try again.'
                         )
                     } else {
                         showLaunchFailure(
-                            '다운로드 오류',
-                            '오류가 발생했습니다. 개발자 콘솔 (CTRL + Shift + i) 을열어 자세한 정보를 확인하세요',
+                            'Download Error',
+                            'Check the console (CTRL + Shift + i) for more details. Please try again.'
                         )
                     }
 
@@ -552,16 +626,16 @@ function dlAsync(login = true) {
                     aEx.disconnect()
                     break
             }
-        } else if (m.context === 'validateEverything') {
+        } else if(m.context === 'validateEverything'){
 
             let allGood = true
 
             // If these properties are not defined it's likely an error.
-            if (m.result.forgeData == null || m.result.versionData == null) {
-                loggerLaunchSuite.error('검증 오류 :', m.result)
+            if(m.result.forgeData == null || m.result.versionData == null){
+                loggerLaunchSuite.error('Error during validation:', m.result)
 
-                loggerLaunchSuite.error('실행 오류', m.result.error)
-                showLaunchFailure('실행 오류', '개발자 콘솔 (CTRL + Shift + i) 을열어 자세한 정보를 확인하세요')
+                loggerLaunchSuite.error('Error during launch', m.result.error)
+                showLaunchFailure('Error During Launch', 'Please check the console (CTRL + Shift + i) for more details.')
 
                 allGood = false
             }
@@ -569,17 +643,19 @@ function dlAsync(login = true) {
             forgeData = m.result.forgeData
             versionData = m.result.versionData
 
-            if (login && allGood) {
+            if(login && allGood) {
                 const authUser = ConfigManager.getSelectedAccount()
-                loggerLaunchSuite.log(`선택된 계정 (${authUser.displayName})을 ProcessBuilder으로 전송합니다.`)
+                loggerLaunchSuite.log(`Sending selected account (${authUser.displayName}) to ProcessBuilder.`)
                 let pb = new ProcessBuilder(serv, versionData, forgeData, authUser, remote.app.getVersion())
-                setLaunchDetails('게임 실행 중...')
+                setLaunchDetails('Launching game..')
+
+                // const SERVER_JOINED_REGEX = /\[.+\]: \[CHAT\] [a-zA-Z0-9_]{1,16} joined the game/
+                const SERVER_JOINED_REGEX = new RegExp(`\\[.+\\]: \\[CHAT\\] ${authUser.displayName} joined the game`)
 
                 const onLoadComplete = () => {
                     toggleLaunchArea(false)
-                    if (hasRPC) {
-                        DiscordWrapper.updateDetails('게임 로딩 중...')
-                        DiscordLogger.log('Discord RPC를 가동합니다.')
+                    if(hasRPC){
+                        DiscordWrapper.updateDetails('Loading game..')
                     }
                     proc.stdout.on('data', gameStateChange)
                     proc.stdout.removeListener('data', tempListener)
@@ -591,11 +667,11 @@ function dlAsync(login = true) {
                 // Will wait for a certain bit of text meaning that
                 // the client application has started, and we can hide
                 // the progress bar stuff.
-                const tempListener = function(data) {
-                    if (GAME_LAUNCH_REGEX.test(data.trim())) {
-                        const diff = Date.now() - start
-                        if (diff < MIN_LINGER) {
-                            setTimeout(onLoadComplete, MIN_LINGER - diff)
+                const tempListener = function(data){
+                    if(GAME_LAUNCH_REGEX.test(data.trim())){
+                        const diff = Date.now()-start
+                        if(diff < MIN_LINGER) {
+                            setTimeout(onLoadComplete, MIN_LINGER-diff)
                         } else {
                             onLoadComplete()
                         }
@@ -603,22 +679,20 @@ function dlAsync(login = true) {
                 }
 
                 // Listener for Discord RPC.
-                const gameStateChange = function(data) {
+                const gameStateChange = function(data){
                     data = data.trim()
-                    if (SERVER_JOINED_REGEX.test(data)) {
-                        DiscordWrapper.updateDetails('감귤농장 플레이 중')
-                        DiscordLogger.log('상태 변경 완료')
-                    } else if (GAME_JOINED_REGEX.test(data)) {
-                        DiscordWrapper.updateDetails('감귤농장 로딩 중')
-                        DiscordLogger.log('상태 변경 완료')
+                    if(SERVER_JOINED_REGEX.test(data)){
+                        DiscordWrapper.updateDetails('Exploring the Realm!')
+                    } else if(GAME_JOINED_REGEX.test(data)){
+                        DiscordWrapper.updateDetails('Sailing to Westeros!')
                     }
                 }
 
-                const gameErrorListener = function(data) {
+                const gameErrorListener = function(data){
                     data = data.trim()
-                    if (data.indexOf('Could not find or load main class net.minecraft.launchwrapper.Launch') > -1) {
+                    if(data.indexOf('Could not find or load main class net.minecraft.launchwrapper.Launch') > -1){
                         loggerLaunchSuite.error('Game launch failed, LaunchWrapper was not downloaded properly.')
-                        showLaunchFailure('실행 오류', '메인 파일 다운로드를 실패했습니다.<br><br>관리자에게 문의 해주세요.')
+                        showLaunchFailure('Error During Launch', 'The main file, LaunchWrapper, failed to download properly. As a result, the game cannot launch.<br><br>To fix this issue, temporarily turn off your antivirus software and launch the game again.<br><br>If you have time, please <a href="https://github.com/dscalzi/HeliosLauncher/issues">submit an issue</a> and let us know what antivirus software you use. We\'ll contact them and try to straighten things out.')
                     }
                 }
 
@@ -630,97 +704,63 @@ function dlAsync(login = true) {
                     proc.stdout.on('data', tempListener)
                     proc.stderr.on('data', gameErrorListener)
 
-                    setLaunchDetails('완료!')
+                    setLaunchDetails('Done. Enjoy the server!')
 
                     // Init Discord Hook
                     const distro = DistroManager.getDistribution()
-                    if (distro.discord != null && serv.discord != null) {
+                    if(distro.discord != null && serv.discord != null){
                         DiscordWrapper.initRPC(distro.discord, serv.discord)
                         hasRPC = true
                         proc.on('close', (code, signal) => {
-                            DiscordLogger.log('디스코드 RPC를 종료합니다.')
+                            loggerLaunchSuite.log('Shutting down Discord Rich Presence..')
                             DiscordWrapper.shutdownRPC()
                             hasRPC = false
                             proc = null
                         })
                     }
 
-                } catch (err) {
+                } catch(err) {
 
-                    loggerLaunchSuite.error('실행오류', err)
-                    showLaunchFailure('실행에 실패했습니다.', '개발자 콘솔 (CTRL + Shift + i) 에서 자세한 정보를 확인하세요.')
+                    loggerLaunchSuite.error('Error during launch', err)
+                    showLaunchFailure('Error During Launch', 'Please check the console (CTRL + Shift + i) for more details.')
 
                 }
             }
 
             // Disconnect from AssetExec
             aEx.disconnect()
-            //Launch
-            toggleLaunchArea(false)
+
         }
     })
 
     // Begin Validations
 
     // Validate Forge files.
-    setLaunchDetails('서버 정보 로딩중...')
+    setLaunchDetails('Loading server information..')
 
     refreshDistributionIndex(true, (data) => {
         onDistroRefresh(data)
         serv = data.getServer(ConfigManager.getSelectedServer())
-        aEx.send({ task: 'execute', function: 'validateEverything', argsArr: [ConfigManager.getSelectedServer(), DistroManager.isDevMode()] })
+        aEx.send({task: 'execute', function: 'validateEverything', argsArr: [ConfigManager.getSelectedServer(), DistroManager.isDevMode()]})
     }, (err) => {
         loggerLaunchSuite.log('Error while fetching a fresh copy of the distribution index.', err)
         refreshDistributionIndex(false, (data) => {
             onDistroRefresh(data)
             serv = data.getServer(ConfigManager.getSelectedServer())
-            aEx.send({ task: 'execute', function: 'validateEverything', argsArr: [ConfigManager.getSelectedServer(), DistroManager.isDevMode()] })
+            aEx.send({task: 'execute', function: 'validateEverything', argsArr: [ConfigManager.getSelectedServer(), DistroManager.isDevMode()]})
         }, (err) => {
             loggerLaunchSuite.error('Unable to refresh distribution index.', err)
-            if (DistroManager.getDistribution() == null) {
-                showLaunchFailure('오류', '배포 인덱스를 불러오는데 실패했습니다. 개발자 콘솔을 확인해 주세요')
+            if(DistroManager.getDistribution() == null){
+                showLaunchFailure('Fatal Error', 'Could not load a copy of the distribution index. See the console (CTRL + Shift + i) for more details.')
 
                 // Disconnect from AssetExec
                 aEx.disconnect()
             } else {
                 serv = data.getServer(ConfigManager.getSelectedServer())
-                aEx.send({ task: 'execute', function: 'validateEverything', argsArr: [ConfigManager.getSelectedServer(), DistroManager.isDevMode()] })
+                aEx.send({task: 'execute', function: 'validateEverything', argsArr: [ConfigManager.getSelectedServer(), DistroManager.isDevMode()]})
             }
         })
     })
-}
-
-/**
- * Checks the current server to ensure that they still have permission to play it (checking server code, if applicable) and open up an error overlay if specified
- * @Param {boolean} whether or not to show the error overlay
- */
-function checkCurrentServer(errorOverlay = true) {
-    const selectedServId = ConfigManager.getSelectedServer()
-    if (selectedServId) {
-        const selectedServ = DistroManager.getDistribution().getServer(selectedServId)
-        if (selectedServ) {
-            if (selectedServ.getServerCode() && selectedServ.getServerCode() !== '') {
-                if (!ConfigManager.getServerCodes().includes(selectedServ.getServerCode())) {
-                    if (errorOverlay) {
-                        setOverlayContent(
-                            '액세스 불가능',
-                            '서버에 액세스하는 데 필요한 서버 코드가 없습니다. 서버를 변경해서 플레이 해주세요..<br><br>오류가 발생한 경우 런처 관리자에게 문의해주세요.',
-                            '서버 변경'
-                        )
-                        setOverlayHandler(() => {
-                            toggleServerSelection(true)
-                        })
-                        setDismissHandler(() => {
-                            toggleOverlay(false)
-                        })
-                        toggleOverlay(true, true)
-                    }
-                    return false
-                }
-            }
-        }
-        return true
-    }
 }
 
 /**
@@ -823,7 +863,7 @@ let newsLoadingListener = null
  */
 function setNewsLoading(val){
     if(val){
-        const nLStr = '소식 확인 중'
+        const nLStr = 'Checking for News'
         let dotStr = '..'
         nELoadSpan.innerHTML = nLStr + dotStr
         newsLoadingListener = setInterval(() => {
@@ -876,6 +916,14 @@ function reloadNews(){
 }
 
 let newsAlertShown = false
+
+/**
+ * Show the news alert indicating there is new news.
+ */
+function showNewsAlert(){
+    newsAlertShown = true
+    $(newsButtonAlert).fadeIn(250)
+}
 
 /**
  * Initialize News UI. This will load the news and prepare
@@ -936,18 +984,22 @@ function initNews(){
                         // Compare Content
                         if(cached.content !== newHash){
                             isNew = true
+                            showNewsAlert()
                         } else {
                             if(!cached.dismissed){
                                 isNew = true
+                                showNewsAlert()
                             }
                         }
 
                     } else {
                         isNew = true
+                        showNewsAlert()
                     }
 
                 } else {
                     isNew = true
+                    showNewsAlert()
                 }
 
                 if(isNew){
@@ -1014,12 +1066,11 @@ document.addEventListener('keydown', (e) => {
  */
 function displayArticle(articleObject, index){
     newsArticleTitle.innerHTML = articleObject.title
-    //newsArticleTitle.href = articleObject.link
-    
-    newsArticleAuthor.innerHTML = '작성자 ' + articleObject.author
+    newsArticleTitle.href = articleObject.link
+    newsArticleAuthor.innerHTML = 'by ' + articleObject.author
     newsArticleDate.innerHTML = articleObject.date
-    //newsArticleComments.innerHTML = articleObject.comments
-    //newsArticleComments.href = articleObject.commentsLink
+    newsArticleComments.innerHTML = articleObject.comments
+    newsArticleComments.href = articleObject.commentsLink
     newsArticleContentScrollable.innerHTML = '<div id="newsArticleContentWrapper"><div class="newsArticleSpacerTop"></div>' + articleObject.content + '<div class="newsArticleSpacerBot"></div></div>'
     Array.from(newsArticleContentScrollable.getElementsByClassName('bbCodeSpoilerButton')).forEach(v => {
         v.onclick = () => {
@@ -1027,7 +1078,7 @@ function displayArticle(articleObject, index){
             text.style.display = text.style.display === 'block' ? 'none' : 'block'
         }
     })
-    newsNavigationStatus.innerHTML = newsArr.length + '페이지 중 ' + index + ' 페이지'
+    newsNavigationStatus.innerHTML = index + ' of ' + newsArr.length
     newsContent.setAttribute('article', index-1)
 }
 
@@ -1037,7 +1088,8 @@ function displayArticle(articleObject, index){
  */
 function loadNews(){
     return new Promise((resolve, reject) => {
-        const newsFeed = 'https://01094986943a.wixsite.com/-site/blog-feed.xml'
+        const distroData = DistroManager.getDistribution()
+        const newsFeed = distroData.getRSS()
         const newsHost = new URL(newsFeed).origin + '/'
         $.ajax({
             url: newsFeed,
@@ -1050,7 +1102,7 @@ function loadNews(){
                     const el = $(items[i])
 
                     // Resolve date.
-                    const date = new Date(el.find('pubDate').text()).toLocaleDateString('ko-KR', {month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric'})
+                    const date = new Date(el.find('pubDate').text()).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric'})
 
                     // Resolve comments.
                     let comments = el.find('slash\\:comments').text() || '0'
@@ -1093,5 +1145,3 @@ function loadNews(){
         })
     })
 }
-
-initNews()

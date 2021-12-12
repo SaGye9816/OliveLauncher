@@ -23,6 +23,7 @@ class ProcessBuilder {
         this.forgeData = forgeData
         this.authUser = authUser
         this.launcherVersion = launcherVersion
+        this.forgeModListFile = path.join(this.gameDir, 'forgeMods.list') // 1.13+
         this.fmlDir = path.join(this.gameDir, 'forgeModList.json')
         this.llDir = path.join(this.gameDir, 'liteloaderModList.json')
         this.libPath = path.join(this.commonDir, 'libraries')
@@ -44,9 +45,9 @@ class ProcessBuilder {
         
         // Mod list below 1.13
         if(!Util.mcVersionAtLeast('1.13', this.server.getMinecraftVersion())){
-            this.constructModList('forge', modObj.fMods, true)
+            this.constructJSONModList('forge', modObj.fMods, true)
             if(this.usingLiteLoader){
-                this.constructModList('liteloader', modObj.lMods, true)
+                this.constructJSONModList('liteloader', modObj.lMods, true)
             }
         }
         
@@ -54,7 +55,8 @@ class ProcessBuilder {
         let args = this.constructJVMArguments(uberModArr, tempNativePath)
 
         if(Util.mcVersionAtLeast('1.13', this.server.getMinecraftVersion())){
-            args = args.concat(this.constructModArguments(modObj.fMods))
+            //args = args.concat(this.constructModArguments(modObj.fMods))
+            args = args.concat(this.constructModList(modObj.fMods))
         }
 
         logger.log('Launch Arguments:', args)
@@ -165,7 +167,7 @@ class ProcessBuilder {
                         const v = this.resolveModConfiguration(modCfg[mdl.getVersionlessID()].mods, mdl.getSubModules())
                         fMods = fMods.concat(v.fMods)
                         lMods = lMods.concat(v.lMods)
-                        if(mdl.type === DistroManager.Types.ForgeMod){
+                        if(mdl.type === DistroManager.Types.LiteLoader){
                             continue
                         }
                     }
@@ -224,7 +226,7 @@ class ProcessBuilder {
      * @param {Array.<Object>} mods An array of mods to add to the mod list.
      * @param {boolean} save Optional. Whether or not we should save the mod list file.
      */
-    constructModList(type, mods, save = false){
+    constructJSONModList(type, mods, save = false){
         const modList = {
             repositoryRoot: ((type === 'forge' && this._requiresAbsolute()) ? 'absolute:' : '') + path.join(this.commonDir, 'modstore')
         }
@@ -249,27 +251,51 @@ class ProcessBuilder {
         return modList
     }
 
+    // /**
+    //  * Construct the mod argument list for forge 1.13
+    //  * 
+    //  * @param {Array.<Object>} mods An array of mods to add to the mod list.
+    //  */
+    // constructModArguments(mods){
+    //     const argStr = mods.map(mod => {
+    //         return mod.getExtensionlessID()
+    //     }).join(',')
+
+    //     if(argStr){
+    //         return [
+    //             '--fml.mavenRoots',
+    //             path.join('..', '..', 'common', 'modstore'),
+    //             '--fml.mods',
+    //             argStr
+    //         ]
+    //     } else {
+    //         return []
+    //     }
+        
+    // }
+
     /**
      * Construct the mod argument list for forge 1.13
      * 
      * @param {Array.<Object>} mods An array of mods to add to the mod list.
      */
-    constructModArguments(mods){
-        const argStr = mods.map(mod => {
+    constructModList(mods) {
+        const writeBuffer = mods.map(mod => {
             return mod.getExtensionlessID()
-        }).join(',')
+        }).join('\n')
 
-        if(argStr){
+        if(writeBuffer) {
+            fs.writeFileSync(this.forgeModListFile, writeBuffer, 'UTF-8')
             return [
                 '--fml.mavenRoots',
                 path.join('..', '..', 'common', 'modstore'),
-                '--fml.mods',
-                argStr
+                '--fml.modLists',
+                this.forgeModListFile
             ]
         } else {
             return []
         }
-        
+
     }
 
     _processAutoConnectArg(args){
@@ -292,7 +318,7 @@ class ProcessBuilder {
      * @returns {Array.<string>} An array containing the full JVM arguments for this process.
      */
     constructJVMArguments(mods, tempNativePath){
-        if(Util.mcVersionAtLeast('1.16', this.server.getMinecraftVersion())){
+        if(Util.mcVersionAtLeast('1.13', this.server.getMinecraftVersion())){
             return this._constructJVMArguments113(mods, tempNativePath)
         } else {
             return this._constructJVMArguments112(mods, tempNativePath)
@@ -317,7 +343,7 @@ class ProcessBuilder {
 
         // Java Arguments
         if(process.platform === 'darwin'){
-            args.push('-Xdock:name=SaGyeOnline')
+            args.push('-Xdock:name=HeliosLauncher')
             args.push('-Xdock:icon=' + path.join(__dirname, '..', 'images', 'minecraft.icns'))
         }
         args.push('-Xmx' + ConfigManager.getMaxRAM())
@@ -351,11 +377,11 @@ class ProcessBuilder {
         // JVM Arguments First
         let args = this.versionData.arguments.jvm
 
-        //args.push('-Dlog4j.configurationFile=D:\\WesterosCraft\\game\\common\\assets\\log_configs\\client-1.16.xml')
+        //args.push('-Dlog4j.configurationFile=D:\\WesterosCraft\\game\\common\\assets\\log_configs\\client-1.12.xml')
 
         // Java Arguments
         if(process.platform === 'darwin'){
-            args.push('-Xdock:name=SaGyeLauncher')
+            args.push('-Xdock:name=HeliosLauncher')
             args.push('-Xdock:icon=' + path.join(__dirname, '..', 'images', 'minecraft.icns'))
         }
         args.push('-Xmx' + ConfigManager.getMaxRAM())
@@ -457,7 +483,7 @@ class ProcessBuilder {
                             val = args[i].replace(argDiscovery, tempNativePath)
                             break
                         case 'launcher_name':
-                            val = args[i].replace(argDiscovery, 'SaGye-Launcher')
+                            val = args[i].replace(argDiscovery, 'Helios-Launcher')
                             break
                         case 'launcher_version':
                             val = args[i].replace(argDiscovery, this.launcherVersion)

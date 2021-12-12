@@ -21,7 +21,7 @@ builder.build({
         appId: 'gamgullauncher',
         productName: 'Gamgul Launcher',
         artifactName: '${productName}.${ext}',
-        copyright: 'Copyright © 2020-2020 GamGul',
+        copyright: 'Copyright © 2021-2021 GamGul',
         directories: {
             buildResources: 'build',
             output: 'dist'

@@ -10,6 +10,7 @@ const logger        = require('./loggerutil')('%c[DistroManager]', 'color: #a02d
  * for a specific module.
  */
 class Artifact {
+    
     /**
      * Parse a JSON object into an Artifact.
      * 
@@ -396,20 +397,6 @@ class Server {
     isMainServer(){
         return this.mainServer
     }
-    
-    /**
-     * @returns {string} The server Connect for this server
-     */
-    getServerConnect(){
-        return this.serverConnect
-    }
-
-    /**
-     * @returns {string} The server code for this server
-     */
-    getServerCode(){
-        return this.serverCode
-    }
 
     /**
      * @returns {boolean} Whether or not the server is autoconnect.
@@ -511,23 +498,6 @@ class DistroIndex {
         }
         return null
     }
-    /**
-     * Get a server configuration by its ID. If it does not
-     * exist, null will be returned.
-     *
-     * @param {string} id The ID of the server.
-     *
-     * @returns {Server[]} The server configuration with the given ID or null.
-     */
-    getServersFromCode(code){
-        let servs = []
-        for(let serv of this.servers){
-            if(serv.serverCode === code){
-                servs.push(serv)
-            }
-        }
-        return servs
-    }
 
     /**
      * Get the main server.
@@ -555,7 +525,7 @@ exports.Types = {
 let DEV_MODE = false
 
 const DISTRO_PATH = path.join(ConfigManager.getLauncherDirectory(), 'distribution.json')
-const DEV_PATH = path.join(ConfigManager.getLauncherDirectory(), 'distribution.json')
+const DEV_PATH = path.join(ConfigManager.getLauncherDirectory(), 'dev_distribution.json')
 
 let data = null
 
@@ -567,7 +537,8 @@ exports.pullRemote = function(){
         return exports.pullLocal()
     }
     return new Promise((resolve, reject) => {
-        const distroURL = 'https://gist.githubusercontent.com/SaGye9816/672e8d3c2df833ea6d0411e9f96c724f/raw/00625299bc8d5815e1a8f06301b34ac1097ed44d/'
+        const distroURL = 'https://gist.githubusercontent.com/SaGye9816/f1d2be6ac6523c4f452133124c797a8b/raw/aa79333e92337c2cf6a315b9d96f65d5b16e21d0/distribution.json'
+        //const distroURL = 'https://gist.githubusercontent.com/dscalzi/53b1ba7a11d26a5c353f9d5ae484b71b/raw/'
         const opts = {
             url: distroURL,
             timeout: 2500
@@ -580,17 +551,21 @@ exports.pullRemote = function(){
                     data = DistroIndex.fromJSON(JSON.parse(body))
                 } catch (e) {
                     reject(e)
+                    return
                 }
 
                 fs.writeFile(distroDest, body, 'utf-8', (err) => {
                     if(!err){
                         resolve(data)
+                        return
                     } else {
                         reject(err)
+                        return
                     }
                 })
             } else {
                 reject(error)
+                return
             }
         })
     })
@@ -605,8 +580,10 @@ exports.pullLocal = function(){
             if(!err){
                 data = DistroIndex.fromJSON(JSON.parse(d))
                 resolve(data)
+                return
             } else {
                 reject(err)
+                return
             }
         })
     })
