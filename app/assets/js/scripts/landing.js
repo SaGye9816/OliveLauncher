@@ -245,13 +245,13 @@ function asyncSystemScan(mcVersion, launchAfter = true) {
                 // If the result is null, no valid Java installation was found.
                 // Show this information to the user.
                 setOverlayContent(
-                    '호환되는<br>자바 설치 찾을 수 없습니다.',
-                    '64Bit 자바 8이 필요합니다.. 자바를 설치하겠습니까? <a href="http://www.oracle.com/technetwork/java/javase/terms/license/index.html">오라클 라이센스 계약</a>.',
+                    '호환되는 자바 설치 찾을 수 없습니다.',
+                    '64Bit 자바 8이 필요합니다. 자바를 설치하겠습니까? <a href="http://www.oracle.com/technetwork/java/javase/terms/license/index.html">오라클 라이센스 계약</a>.',
                     '자바 설치(자동)',
                     '메뉴얼대로 설치'
                 )
                 setOverlayHandler(() => {
-                    setLaunchDetails('자바 설치중..')
+                    setLaunchDetails('자바 설치 중..')
                     sysAEx.send({ task: 'changeContext', class: 'AssetGuard', args: [ConfigManager.getCommonDirectory(), ConfigManager.getJavaExecutable()] })
                     sysAEx.send({ task: 'execute', function: '_enqueueOpenJDK', argsArr: [ConfigManager.getDataDirectory()] })
                     toggleOverlay(false)

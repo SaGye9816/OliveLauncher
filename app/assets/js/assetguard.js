@@ -296,7 +296,7 @@ class JavaGuard extends EventEmitter {
 
         const sanitizedOS = process.platform === 'win32' ? 'windows' : (process.platform === 'darwin' ? 'mac' : process.platform)
 
-        const url = `https://api.adoptium.net/v3/assets/latest/${major}/hotspot?vendor=eclipse`
+        const url = 'https://api.adoptium.net/v3/assets/latest/${major}/hotspot?vendor=eclipse'
         
         return new Promise((resolve, reject) => {
             request({url, json: true}, (err, resp, body) => {
