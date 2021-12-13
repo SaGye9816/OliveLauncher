@@ -3576,20 +3576,20 @@ input:checked + .toggleSwitchSlider:before {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    justify-content: space-between;
+    justify-content: space-around;
     height: 50px;
 }
 
 /* The name of the server listing. */
 .serverListingName {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: bold;
 }
 
 /* Description for the server listing. */
 .serverListingDescription {
-    font-size: 10px;
-    line-height: 10px;
+    font-size: 12px;
+    line-height: 12px;
     font-weight: bold;
 }
 

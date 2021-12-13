@@ -274,7 +274,7 @@ function populateServerListings(){
             <img class="serverListingImg" src="${serv.getIcon()}"/>
             <div class="serverListingDetails">
                 <span class="serverListingName">${serv.getName()}</span>
-                <span class="serverListingDescription">${serv.getDescription()}</span>
+                <span class="serverListingDescription" style="font-size: 10px;">${serv.getDescription()}</span>
             </div>
         </button>`
     }
