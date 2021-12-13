@@ -283,11 +283,20 @@ class JavaGuard extends EventEmitter {
      * 
      * @returns {Promise.<OpenJDKData>} Promise which resolved to an object containing the JRE download data.
      */
+	static _latestOpenJDK(major = '8'){
+
+        if(process.platform === 'darwin') {
+            return this._latestCorretto(major)
+        } else {
+            return this._latestAdoptium(major)
+        }
+    } 
+	
     static _latestAdoptium(major) {
 
         const majorNum = Number(major)
         const sanitizedOS = process.platform === 'win32' ? 'windows' : (process.platform === 'darwin' ? 'mac' : process.platform)
-        const url = `https://api.adoptium.net/v3/assets/latest/${major}/hotspot?vendor=eclipse`
+        const url = `https://api.adoptium.net/v3/assets/latest/${major}/hotspot`
 
         return new Promise((resolve, reject) => {
             request({url, json: true}, (err, resp, body) => {
