@@ -245,7 +245,7 @@ function asyncSystemScan(mcVersion, launchAfter = true) {
                 // If the result is null, no valid Java installation was found.
                 // Show this information to the user.
                 setOverlayContent(
-                    '호환되는 자바가 존재하지 않습니다.',
+                    '호환되는 자바가<br>존재하지 않습니다.',
                     '64Bit 자바 8이 필요합니다. 자바를 설치하겠습니까? <br><a href="http://www.oracle.com/technetwork/java/javase/terms/license/index.html">오라클 라이센스 계약</a>.',
                     '자바 설치(자동)',
                     '메뉴얼대로 설치'
