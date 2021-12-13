@@ -394,8 +394,8 @@ function bindAuthAccountLogOut(){
             if(Object.keys(ConfigManager.getAuthAccounts()).length === 1){
                 isLastAccount = true
                 setOverlayContent(
-                    '경고<br>로그인된 마지막 계정.',
-                    '런처를 사용하려면 하나 이상의 계정에 로그인해야 합니다. 로그아웃시 다시 로그인해야합니다.<br><br>로그아웃하시겠습니까?',
+                    '경고<br>로그인 된 마지막 계정.',
+                    '런처를 사용하려면 하나 이상의 계정에 로그인해야 합니다. 로그아웃 시 다시 로그인해야합니다.<br><br>로그아웃 하시겠습니까?',
                     '로그아웃',
                     '취소'
                 )
@@ -1396,7 +1396,7 @@ function populateSettingsUpdateInformation(data){
         settingsUpdateButtonStatus('업데이트 확인', false, () => {
             if(!isDev){
                 ipcRenderer.send('autoUpdateAction', 'checkForUpdate')
-                settingsUpdateButtonStatus('업데이트 확인중...', true)
+                settingsUpdateButtonStatus('업데이트 확인 중...', true)
             }
         })
     }

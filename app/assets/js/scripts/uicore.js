@@ -49,7 +49,7 @@ if (!isDev) {
                 break
             case 'update-downloaded':
                 loggerAutoUpdaterSuccess.log('업데이트 버전 ' + info.version + ' 설치 준비 완료')
-                settingsUpdateButtonStatus('재부팅시 업데이트가 적용됩니다.', true, () => {
+                settingsUpdateButtonStatus('재부팅 시 업데이트가 적용됩니다.', true, () => {
                     if (!isDev) {
                         ipcRenderer.send('autoUpdateAction', 'installUpdateNow')
                     }
