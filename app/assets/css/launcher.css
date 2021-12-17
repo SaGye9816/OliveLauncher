@@ -934,6 +934,7 @@ body, button {
     display: flex;
     justify-content: center;
     box-sizing: border-box;
+	margin: 0 auto;
 }
 
 /* Navigation items content container. */
@@ -950,7 +951,7 @@ body, button {
     border: none;
     text-align: left;
     margin: 5px 0px;
-    padding: 0px 20px;
+    padding: 0px 10px;
     color: grey;
     cursor: pointer;
     outline: none;
@@ -980,10 +981,10 @@ body, button {
 
 /* Settings navigational divider. */
 .settingsNavDivider {
-    width: 75%;
+    width: 100%;
     height: 1px;
     background: rgba(126, 126, 126, 0.57);
-    margin-left: auto;
+    margin-left: 10px;
     margin-bottom: 25px;
 }
 
@@ -991,9 +992,8 @@ body, button {
 #settingsNavDone {
     background: none;
     border: none;
-    text-align: left;
     margin: 5px 0px;
-    padding: 0px 20px;
+    padding: 0px 15px;
     color: white;
     cursor: pointer;
     outline: none;
@@ -2870,7 +2870,7 @@ input:checked + .toggleSwitchSlider:before {
 /* Divider bar between the external and internal icons. */
 .mediaDivider {
     height: 1px;
-    width: 14px;
+    width: 20px;
     background: rgb(255, 255, 255);
     margin: 10px 0px;
 }
@@ -2878,10 +2878,10 @@ input:checked + .toggleSwitchSlider:before {
 /* Social media icon shared styles. */
 .mediaSVG {
     fill: #ffffff;
-    height: 12px;
+    height: 18px;
     transition: 0.25s ease;
     cursor: pointer;
-    height: 12px;
+    height: 20px;
     width: 25px;
 }
 .mediaSVG:hover,
@@ -2912,7 +2912,7 @@ input:checked + .toggleSwitchSlider:before {
 /* Settings icon colors. */
 #settingsSVG {
     stroke: #ffffff;
-    height: 15px;
+    height: 20px;
 }
 .mediaButton:hover #settingsSVG,
 .mediaButton:focus #settingsSVG,
