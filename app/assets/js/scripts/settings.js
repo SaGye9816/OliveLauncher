@@ -965,7 +965,7 @@ function loadSelectedServerOnModsTab(){
         <img class="serverListingImg" src="${serv.getIcon()}"/>
         <div class="serverListingDetails">
             <span class="serverListingName">${serv.getName()}</span>
-            <span class="serverListingDescription">감귤농장에 입학하시겠습니까?</span>
+            <span class="serverListingDescription">${serv.getDescription()</span>
             <div class="serverListingInfo">
                 ${serv.isMainServer() ? `<div class="serverListingStarWrapper">
                     <svg id="Layer_1" viewBox="0 0 107.45 104.74" width="20px" height="20px">
