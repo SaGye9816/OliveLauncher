@@ -1,13 +1,13 @@
 <p align="center"><img src="./app/assets/images/SealCircle.png" width="150px" height="150px" alt="aventium softworks"></p>
 
-<h1 align="center">GamGul Launcher</h1>
+<h1 align="center">Olive Launcher</h1>
 
 <em><h5 align="center">(formerly Electron Launcher)</h5></em>
 
-[![Build/release](https://github.com/SaGye9816/GamgulLauncher/actions/workflows/main.yml/badge.svg)](https://github.com/SaGye9816/GamgulLauncher/actions/workflows/main.yml)
+[![Build/release](https://github.com/SaGye9816/OliveLauncher/actions/workflows/main.yml/badge.svg)](https://github.com/SaGye9816/OliveLauncher/actions/workflows/main.yml)
 
-# 감귤농장 런처
-감귤농장 공식 런처 깃허브에 오신것을 환영합니다.
+# 올리브 런처
+올리브 공식 런처 깃허브에 오신것을 환영합니다.
 ## 기능
 - 자바 자동 설정
 - 자바 메모리 설정기능(GUI)
