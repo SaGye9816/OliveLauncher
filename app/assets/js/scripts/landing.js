@@ -527,7 +527,7 @@ function dlAsync(login = true) {
                         progressListener = null
                     }
 
-                    setLaunchDetails('시작 준비중...')
+                    setLaunchDetails('시작 준비 중...')
                     break
             }
         } else if (m.context === 'error') {

@@ -18,10 +18,10 @@ function getCurrentPlatform(){
 builder.build({
     targets: (process.argv[2] != null && Platform[process.argv[2]] != null ? Platform[process.argv[2]] : getCurrentPlatform()).createTarget(),
     config: {
-        appId: 'gamgullauncher',
-        productName: 'Gamgul Launcher',
+        appId: 'olivelauncher',
+        productName: 'Olive Launcher',
         artifactName: '${productName}.${ext}',
-        copyright: 'Copyright © 2021-2021 GamGul',
+        copyright: 'Copyright © 2022-2022 Olive',
         directories: {
             buildResources: 'build',
             output: 'dist'
@@ -47,8 +47,8 @@ builder.build({
         },
         linux: {
             target: 'AppImage',
-            maintainer: 'Gamgul',
-            vendor: 'Gamgul',
+            maintainer: 'Olive',
+            vendor: 'Olive',
             synopsis: 'Modded Minecraft Launcher',
             description: 'Custom launcher which allows users to join modded servers. All mods, configurations, and updates are handled automatically.',
             category: 'Game'

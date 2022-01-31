@@ -1,13 +1,13 @@
 {
-    "name": "gamgullauncher",
-    "version": "1.2.7",
-    "productName": "Gamgul Launcher",
+    "name": "olivelauncher",
+    "version": "1.0.0",
+    "productName": "Olive Launcher",
     "description": "Modded Minecraft Launcher",
-    "author": "SaGye (https://github.com/SaGye9816/GamgulLauncher/)",
+    "author": "SaGye (https://github.com/SaGye9816/OliveLauncher)",
     "license": "UNLICENSED",
     "homepage": "",
     "bugs": {
-        "url": "https://github.com/SaGye9816/GamgulLauncherMods/issues"
+        "url": "https://github.com/SaGye9816/OliveLauncherMods/issues"
     },
     "private": true,
     "main": "index.js",
@@ -47,6 +47,6 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/SaGye9816/GamgulLauncherMods.git"
+        "url": "git+https://github.com/SaGye9816/OliveLauncher.git"
     }
 }
