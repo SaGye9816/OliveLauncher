@@ -33,7 +33,7 @@ const refreshServerStatus = async function(fade = false){
     if(fade){
         $('#server_status_wrapper').fadeOut(250, () => {
             document.getElementById('player_count').innerHTML = pVal
-			document.getElementById('player_count_exist').innerHTML = "명"
+
             $('#server_status_wrapper').fadeIn(500)
         })
     } else {
